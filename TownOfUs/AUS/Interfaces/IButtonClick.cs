@@ -1,0 +1,1 @@
+﻿namespace AmongUsSalem.Interfaces;
