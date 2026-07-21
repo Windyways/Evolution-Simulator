@@ -14,26 +14,26 @@ public static class IntroScenePatches
     [HarmonyPrefix]
     public static bool BeginCrewmatePatch(IntroCutscene __instance)
     {
-        if (PlayerControl.LocalPlayer.Is(Faction.Village))
+        if (PlayerControl.LocalPlayer.Is(Faction.Crewmate))
         {
-            __instance.TeamTitle.text = "Village";
-            __instance.TeamTitle.color = RoleColors.Village;
+            __instance.TeamTitle.text = "Crewmate";
+            __instance.TeamTitle.color = RoleColors.Crewmate;
 
             var yourTeam = PlayerControl.AllPlayerControls.ToArray().ToList();
             GenerateYourTeam(__instance, yourTeam);
         }
-        else if (PlayerControl.LocalPlayer.Is(Faction.Mafia))
+        else if (PlayerControl.LocalPlayer.Is(Faction.Impostor))
         {
-            __instance.TeamTitle.text = "Mafia";
-            __instance.TeamTitle.color = RoleColors.Mafia;
+            __instance.TeamTitle.text = "Impostor";
+            __instance.TeamTitle.color = RoleColors.Impostor;
 
-            var yourTeam = PlayerControl.AllPlayerControls.ToArray().Where(x => x.Is(Faction.Mafia)).ToList();
+            var yourTeam = PlayerControl.AllPlayerControls.ToArray().Where(x => x.Is(Faction.Impostor)).ToList();
             GenerateYourTeam(__instance, yourTeam);
         }
-        else if (PlayerControl.LocalPlayer.Is(Faction.Independent))
+        else if (PlayerControl.LocalPlayer.Is(Faction.Neutral))
         {
-            __instance.TeamTitle.text = "Independent";
-            __instance.TeamTitle.color = RoleColors.Independent;
+            __instance.TeamTitle.text = "Neutral";
+            __instance.TeamTitle.color = RoleColors.Neutral;
 
             var player = __instance.CreatePlayer(0, 1, PlayerControl.LocalPlayer.Data, false);
             __instance.ourCrewmate = player;
@@ -47,7 +47,7 @@ public static class IntroScenePatches
         return false;
     }
 
-    public static void GenerateYourTeam(IntroCutscene __instance, List<PlayerControl> yourTeam, bool mafia = false)
+    public static void GenerateYourTeam(IntroCutscene __instance, List<PlayerControl> yourTeam, bool impostor = false)
     {
         // Found via DNspy. Ty Le Killer.
         for (int i = 0; i < yourTeam.Count; i++)
@@ -58,7 +58,7 @@ public static class IntroScenePatches
                 NetworkedPlayerInfo data = playerControl.Data;
                 if (!(data == null))
                 {
-                    PoolablePlayer poolablePlayer = __instance.CreatePlayer(i, 1, data, mafia);
+                    PoolablePlayer poolablePlayer = __instance.CreatePlayer(i, 1, data, impostor);
                     if (i == 0 && data.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                     {
                         __instance.ourCrewmate = poolablePlayer;
@@ -259,9 +259,9 @@ public static class ModifierIntroPatch
 
     public static void SetHiddenImpostors(IntroCutscene __instance)
     {
-        var mafiaAmount = Helpers.GetAlivePlayers().Count(x => x.IsImpostor());
-        if (mafiaAmount == 1) __instance.ImpostorText.text = $"There is {mafiaAmount} <color=#903e3f>Mafia</color> among us.";
-        else if (mafiaAmount > 0) __instance.ImpostorText.text = $"There are {mafiaAmount} <color=#903e3f>Mafias</color> among us.";
+        var impostorAmount = Helpers.GetAlivePlayers().Count(x => x.Is(Faction.Impostor));
+        if (impostorAmount == 1) __instance.ImpostorText.text = $"There is {impostorAmount} <color=#ff0000>Impostor</color> among us.";
+        else if (impostorAmount > 0) __instance.ImpostorText.text = $"There are {impostorAmount} <color=#ff0000>Impostors</color> among us.";
 
         var players = GameData.Instance.PlayerCount;
 
@@ -302,6 +302,6 @@ public static class ModifierIntroPatch
 
         if (!buckets.Any(x => x is RoleListOption.Any)) return;
 
-        __instance.ImpostorText.text = $"There is ??? <color=#903e3f>Mafias</color> among us.";
+        __instance.ImpostorText.text = $"There is ??? <color=#ff0000>Impostors</color> among us.";
     }
 }

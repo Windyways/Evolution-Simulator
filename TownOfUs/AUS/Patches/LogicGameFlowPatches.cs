@@ -141,12 +141,12 @@ public static class LogicGameFlowPatches
             return false;
         }
 
-        // If any Mafia win condition is met -> game over
+        // If any Impostor win condition is met -> game over
         if (CustomRoleUtils.GetActiveRolesOfTeam(ModdedRoleTeams.Custom)
-            .FirstOrDefault(x => x is ICustomAURole role && role.WinConditionMet() && role.Faction == Faction.Mafia) is { } winner4)
+            .FirstOrDefault(x => x is ICustomAURole role && role.WinConditionMet() && role.Faction == Faction.Impostor) is { } winner4)
         {
             Logger<AUSPlugin>.Message($"Game Over");
-            CustomGameOver.Trigger<MafiaGameOver>([winner4.Player.Data]);
+            CustomGameOver.Trigger<ImpostorGameOver>([winner4.Player.Data]);
 
             return false;
         }
@@ -163,8 +163,8 @@ public static class LogicGameFlowPatches
             return false;
         }
 
-        var aliveMafia = PlayerControl.AllPlayerControls.ToArray().Count(x => x.Is(Faction.Mafia) && !x.HasDied());
-        if (aliveMafia > 0)
+        var aliveImpostor = PlayerControl.AllPlayerControls.ToArray().Count(x => x.Is(Faction.Impostor) && !x.HasDied());
+        if (aliveImpostor > 0)
             return false;
 
         // Causes the game to draw in extreme scenarios

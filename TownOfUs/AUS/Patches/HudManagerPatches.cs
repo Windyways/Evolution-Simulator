@@ -17,12 +17,9 @@ public static class HudManagerPatches
     public static bool LocalVisibilityFlag(PlayerControl localPlayer, PlayerControl player)
     {
         return
-            // Mafia
-            (localPlayer.Is(Faction.Mafia) && player.Is(Faction.Mafia)) ||
-            (localPlayer.Is(Faction.Mafia) && player.TryGetModifier<RoleLearn>(out var mafiaRevealed) && mafiaRevealed.Visitor.Is(Faction.Mafia)) ||
-
-            // Cop & Deputy know each other; share a night chat.
-            (localPlayer.IsSheriff() && player.IsSheriff()) ||
+            // Impostor
+            (localPlayer.Is(Faction.Impostor) && player.Is(Faction.Impostor)) ||
+            (localPlayer.Is(Faction.Impostor) && player.TryGetModifier<RoleLearn>(out var impostorRevealed) && impostorRevealed.Visitor.Is(Faction.Impostor)) ||
 
             (!localPlayer.Is(Faction.None) && player.HasDied()) ||
 
@@ -35,20 +32,6 @@ public static class HudManagerPatches
     public static bool VisibilityFlag(PlayerControl player)
     {
         return LocalVisibilityFlag(PlayerControl.LocalPlayer, player);
-        /*return
-            // Mafia
-            (PlayerControl.LocalPlayer.Is(Faction.Mafia) && player.Is(Faction.Mafia)) ||
-            (PlayerControl.LocalPlayer.Is(Faction.Mafia) && player.TryGetModifier<RoleLearn>(out var mafiaRevealed) && mafiaRevealed.Visitor.Is(Faction.Mafia)) ||
-
-            // Cop & Deputy know each other; share a night chat.
-            (PlayerControl.LocalPlayer.IsSheriff() && player.IsSheriff()) ||
-
-            (!PlayerControl.LocalPlayer.Is(Faction.None) && player.HasDied()) ||
-
-            (!PlayerControl.LocalPlayer.Is(Faction.None) && player.HasModifier<GlobalReveal>()) ||
-            (!PlayerControl.LocalPlayer.Is(Faction.None) && player.TryGetModifier<RoleLearn>(out var revealed2) && revealed2.Visitor == PlayerControl.LocalPlayer) ||
-            (PlayerControl.LocalPlayer == player)
-            ;*/
     }
 
     public static GameObject ZoomButton;
@@ -265,7 +248,7 @@ public static class HudManagerPatches
 
                 if (PlayerControl.LocalPlayer.IsImpostor() && player.IsImpostor() && PlayerControl.LocalPlayer != player)
                 {
-                    playerColor = RoleColors.Mafia;
+                    playerColor = RoleColors.Impostor;
                 }
 
                 playerColor = playerColor.UpdateTargetColor(player);
@@ -426,9 +409,9 @@ public static class HudManagerPatches
                 var playerName = player.GetAppearance().PlayerName ?? "Unknown";
                 var playerColor = Color.white;
 
-                if (PlayerControl.LocalPlayer.Is(Faction.Mafia) && player.Is(Faction.Mafia) && PlayerControl.LocalPlayer != player)
+                if (PlayerControl.LocalPlayer.Is(Faction.Impostor) && player.Is(Faction.Impostor) && PlayerControl.LocalPlayer != player)
                 {
-                    playerColor = RoleColors.Mafia;
+                    playerColor = RoleColors.Impostor;
                 }
 
                 playerColor = playerColor.UpdateTargetColor(player, !isVisible);
@@ -447,7 +430,7 @@ public static class HudManagerPatches
                 var roleName = "";
                 var canSeeDeathReason = false;
                 if (player.AmOwner ||
-                    (PlayerControl.LocalPlayer.Is(Faction.Mafia) && player.Is(Faction.Mafia)) ||
+                    (PlayerControl.LocalPlayer.Is(Faction.Impostor) && player.Is(Faction.Impostor)) ||
                     (PlayerControl.LocalPlayer.HasDied() && genOpt.TheDeadKnow && isVisible) ||
                     VisibilityFlag(player) ||
                     revealMods.Any(x => x.Visible && x.RevealRole))

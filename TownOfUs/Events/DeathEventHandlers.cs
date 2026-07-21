@@ -64,7 +64,7 @@ public static class DeathEventHandlers
         }
         if (!exiled.HasModifier<DeathHandlerModifier>())
         {
-            DeathHandlerModifier.UpdateDeathHandler(exiled, DeathReasonShow.ExecutedByTheVillage, DeathHandlerOverride.SetFalse);
+            DeathHandlerModifier.UpdateDeathHandler(exiled, DeathReasonShow.Ejected, DeathHandlerOverride.SetFalse);
         }
     }
 

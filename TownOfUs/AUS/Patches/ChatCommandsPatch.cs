@@ -1,7 +1,4 @@
 using System.Globalization;
-using HarmonyLib;
-using Reactor.Utilities.Extensions;
-using TownOfUs.Modules;
 
 namespace AmongUsSalem.Patches;
 

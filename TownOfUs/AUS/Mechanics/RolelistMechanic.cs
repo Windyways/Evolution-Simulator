@@ -5,7 +5,7 @@ namespace AmongUsSalem.Mechanics;
 
 public static class RolelistMechanic
 {
-    public static int MafiaCount;
+    public static int ImpostorCount;
     public static void GenerateRoleListAndApplyRoles(List<NetworkedPlayerInfo> infected)
     {
         var impostors = MiscUtils.GetImpostors(infected);
@@ -14,26 +14,26 @@ public static class RolelistMechanic
         var rolesAssigned = new List<ushort>();
 
         var buckets = GetBuckets();
-        int guaranteedCovenCount = buckets.Count(x => x is RoleListOption.RandomMafia or RoleListOption.MafiaDeception or RoleListOption.MafiaKilling or RoleListOption.MafiaSupport or RoleListOption.MafiaUtility);
+        int guaranteedCovenCount = buckets.Count(x => x is RoleListOption.RandomImpostor or RoleListOption.ImpostorDeception or RoleListOption.ImpostorKilling or RoleListOption.ImpostorSupport or RoleListOption.ImpostorUtility);
 
-        MafiaCount += guaranteedCovenCount;
+        ImpostorCount += guaranteedCovenCount;
         foreach (var bucket in buckets.OrderBy(x => x is RoleListOption.Any))
         {
-            if (bucket is RoleListOption.VillageInvestigative) AssignVillageRole(rolesAssigned, Alignment.VillageInvestigative);
-            if (bucket is RoleListOption.VillageKilling) AssignVillageRole(rolesAssigned, Alignment.VillageKilling);
-            if (bucket is RoleListOption.VillageProtective) AssignVillageRole(rolesAssigned, Alignment.VillageProtective);
-            if (bucket is RoleListOption.VillageSupport) AssignVillageRole(rolesAssigned, Alignment.VillageSupport);
-            if (bucket is RoleListOption.VillageUtility) AssignVillageRole(rolesAssigned, Alignment.VillageUtility);
-            if (bucket is RoleListOption.RandomVillage) AssignVillageRole(rolesAssigned, Alignment.None, bucket);
+            if (bucket is RoleListOption.CrewmateInvestigative) AssignCrewmateole(rolesAssigned, Alignment.CrewmateInvestigative);
+            if (bucket is RoleListOption.CrewmateKilling) AssignCrewmateole(rolesAssigned, Alignment.CrewmateKilling);
+            if (bucket is RoleListOption.CrewmateProtective) AssignCrewmateole(rolesAssigned, Alignment.CrewmateProtective);
+            if (bucket is RoleListOption.CrewmateSupport) AssignCrewmateole(rolesAssigned, Alignment.CrewmateSupport);
+            if (bucket is RoleListOption.CrewmateUtility) AssignCrewmateole(rolesAssigned, Alignment.CrewmateUtility);
+            if (bucket is RoleListOption.RandomCrewmate) AssignCrewmateole(rolesAssigned, Alignment.None, bucket);
 
-            if (bucket is RoleListOption.IndependentEvil) AssignIndependentRole(rolesAssigned, Alignment.IndependentEvil);
-            if (bucket is RoleListOption.RandomIndependent) AssignIndependentRole(rolesAssigned, Alignment.None, bucket);
+            if (bucket is RoleListOption.NeutralEvil) AssignNeutralRole(rolesAssigned, Alignment.NeutralEvil);
+            if (bucket is RoleListOption.RandomNeutral) AssignNeutralRole(rolesAssigned, Alignment.None, bucket);
 
-            if (bucket is RoleListOption.MafiaDeception) AssignMafiaRole(rolesAssigned, Alignment.MafiaDeception);
-            if (bucket is RoleListOption.MafiaKilling) AssignMafiaRole(rolesAssigned, Alignment.MafiaKilling);
-            if (bucket is RoleListOption.MafiaSupport) AssignMafiaRole(rolesAssigned, Alignment.MafiaSupport);
-            if (bucket is RoleListOption.MafiaUtility) AssignMafiaRole(rolesAssigned, Alignment.MafiaUtility);
-            if (bucket is RoleListOption.RandomMafia) AssignMafiaRole(rolesAssigned, Alignment.None, bucket);
+            if (bucket is RoleListOption.ImpostorDeception) AssignImpostorRole(rolesAssigned, Alignment.ImpostorDeception);
+            if (bucket is RoleListOption.ImpostorKilling) AssignImpostorRole(rolesAssigned, Alignment.ImpostorKilling);
+            if (bucket is RoleListOption.ImpostorSupport) AssignImpostorRole(rolesAssigned, Alignment.ImpostorSupport);
+            if (bucket is RoleListOption.ImpostorUtility) AssignImpostorRole(rolesAssigned, Alignment.ImpostorUtility);
+            if (bucket is RoleListOption.RandomImpostor) AssignImpostorRole(rolesAssigned, Alignment.None, bucket);
 
             if (bucket is RoleListOption.Any) AssignAnyRole(rolesAssigned);
         }
@@ -51,17 +51,17 @@ public static class RolelistMechanic
         }
 
         // Assign vanilla roles to anyone who did not receive a role.
-        foreach (var player in crewmates) player.RpcSetRole((RoleTypes)RoleId.Get<Villager>());
-        foreach (var player in impostors) player.RpcSetRole((RoleTypes)RoleId.Get<Mafia>());
+        foreach (var player in crewmates) player.RpcSetRole((RoleTypes)RoleId.Get<Crewmate>());
+        foreach (var player in impostors) player.RpcSetRole((RoleTypes)RoleId.Get<Impostor>());
     }
 
     public static void AssignAnyRole(List<ushort> rolesAssigned)
     {
-        int maxMafia = (int)OptionGroupSingleton<MafiaOptions>.Instance.MaxMafia;
+        int maxImpostor = (int)OptionGroupSingleton<ImpostorOptions>.Instance.MaxImpostor;
         var allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole && x is not ISpawnChange).ToList();
 
-        if (MafiaCount >= maxMafia) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange &&
-            customRole.Faction != Faction.Mafia && !rolesAssigned.Contains(RoleId.Get(customRole.GetType()))).ToList();
+        if (ImpostorCount >= maxImpostor) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange &&
+            customRole.Faction != Faction.Impostor && !rolesAssigned.Contains(RoleId.Get(customRole.GetType()))).ToList();
 
         allRoles.AddRange(allRoles.AddDuplicateRolesToPool());
         var rolesAssignable = allRoles.ToList();
@@ -70,7 +70,7 @@ public static class RolelistMechanic
         int attempts = 0;
         while (!gotRole && attempts < 50)
         {
-            MafiaCount = rolesAssigned.Count(x => RoleManager.Instance.GetRole((RoleTypes)x) is ICustomAURole i && i.Faction == Faction.Mafia);
+            ImpostorCount = rolesAssigned.Count(x => RoleManager.Instance.GetRole((RoleTypes)x) is ICustomAURole i && i.Faction == Faction.Impostor);
             if (rolesAssignable.Count == 0)
             {
                 attempts++;
@@ -91,10 +91,10 @@ public static class RolelistMechanic
                         var roleUSHORT = RoleId.Get(customRole.GetType());
                         
                         if (rolesAssigned.Count(x => x.UshortToRole().NiceName == role.NiceName) >= count) AUSPlugin.DebugLogMessage($"Failed to assign {customRole.RoleName} because it has reached its max count!", AUSPlugin.MsgType.Warning);
-                        else if (MafiaCount > maxMafia && customRole.Faction == Faction.Mafia) AUSPlugin.DebugLogMessage($"Failed to assign {customRole.RoleName} because max Mafia members reached!");
+                        else if (ImpostorCount > maxImpostor && customRole.Faction == Faction.Impostor) AUSPlugin.DebugLogMessage($"Failed to assign {customRole.RoleName} because max Impostor members reached!");
                         else
                         {
-                            if (customRole.Faction == Faction.Mafia) MafiaCount++;
+                            if (customRole.Faction == Faction.Impostor) ImpostorCount++;
 
                             gotRole = true;
                             rolesAssigned.Add(roleUSHORT);
@@ -109,12 +109,12 @@ public static class RolelistMechanic
         }
     }
 
-    public static void AssignIndependentRole(List<ushort> rolesAssigned, Alignment alignment, RoleListOption bucket = RoleListOption.None)
+    public static void AssignNeutralRole(List<ushort> rolesAssigned, Alignment alignment, RoleListOption bucket = RoleListOption.None)
     {
         var allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange &&
             customRole.Alignment == alignment).ToList();
 
-        if (bucket == RoleListOption.RandomIndependent) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange && customRole.IsNeutral()).ToList();
+        if (bucket == RoleListOption.RandomNeutral) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange && customRole.IsNeutral()).ToList();
         
         allRoles.AddRange(allRoles.AddDuplicateRolesToPool());
         var rolesAssignable = allRoles.ToList();
@@ -157,12 +157,12 @@ public static class RolelistMechanic
         }
     }
 
-    public static void AssignVillageRole(List<ushort> rolesAssigned, Alignment alignment, RoleListOption bucket = RoleListOption.None)
+    public static void AssignCrewmateole(List<ushort> rolesAssigned, Alignment alignment, RoleListOption bucket = RoleListOption.None)
     {
         var allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange &&
             customRole.Alignment == alignment).ToList();
 
-        if (bucket == RoleListOption.RandomVillage) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange && customRole.Faction == Faction.Village).ToList();
+        if (bucket == RoleListOption.RandomCrewmate) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange && customRole.Faction == Faction.Crewmate).ToList();
         
         allRoles.AddRange(allRoles.AddDuplicateRolesToPool());
         var rolesAssignable = allRoles.ToList();
@@ -205,12 +205,12 @@ public static class RolelistMechanic
         }
     }
 
-    public static void AssignMafiaRole(List<ushort> rolesAssigned, Alignment alignment, RoleListOption bucket = RoleListOption.None)
+    public static void AssignImpostorRole(List<ushort> rolesAssigned, Alignment alignment, RoleListOption bucket = RoleListOption.None)
     {
         var allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange &&
             customRole.Alignment == alignment).ToList();
 
-        if (bucket == RoleListOption.RandomMafia) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange && customRole.Faction == Faction.Mafia).ToList();
+        if (bucket == RoleListOption.RandomImpostor) allRoles = MiscUtils.AllRoles.Where(x => x is ICustomAURole customRole && x is not ISpawnChange && customRole.Faction == Faction.Impostor).ToList();
         
         allRoles.AddRange(allRoles.AddDuplicateRolesToPool());
         var rolesAssignable = allRoles.ToList();

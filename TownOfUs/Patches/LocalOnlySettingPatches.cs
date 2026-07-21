@@ -1,9 +1,5 @@
-using HarmonyLib;
-using InnerNet;
-using MiraAPI.GameOptions;
 using TMPro;
 using TownOfUs.Options;
-using TownOfUs.Roles.Neutral;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;

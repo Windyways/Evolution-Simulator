@@ -4,7 +4,9 @@ namespace AmongUsSalem.Misc;
 
 public static class RoleColors
 {
-    public static Color Village => new Color32(63, 112, 149, 255);
-    public static Color Independent => new Color32(169, 169, 169, 255);
-    public static Color Mafia => new Color32(144, 62, 63, 255);
+    public static Color Crewmate => new Color32(179, 255, 255, 255);
+    public static Color Neutral => new Color32(169, 169, 169, 255);
+    public static Color Impostor => new Color32(255, 0, 0, 255);
+
+    public static Color Survivor => new Color32(221, 221, 0, 255);
 }

@@ -113,9 +113,9 @@ public static class TouRoleManagerPatches
         var rolesAssignable = allRoles.ToList();
         var players = GameData.Instance.PlayerCount;
 
-        // --- MAFIA ---
-        int maxMafia = (int)OptionGroupSingleton<MafiaOptions>.Instance.MaxMafia;
-        int mafiaCount = 0;
+        // --- IMPOSTOR ---
+        int maxImpostor = (int)OptionGroupSingleton<ImpostorOptions>.Instance.MaxImpostor;
+        int impostorCount = 0;
 
         int attempts = 0;
         while (rolesAssigned.Count < players && attempts < 1000)
@@ -136,10 +136,10 @@ public static class TouRoleManagerPatches
                 {
                     if (CalculatedVoting.ChanceIsNull(chance))
                     {
-                        if (mafiaCount >= maxMafia && customRole.Faction == Faction.Mafia) AUSPlugin.DebugLogMessage($"Failed to assign {customRole.RoleName} because max Mafia members reached!");
+                        if (impostorCount >= maxImpostor && customRole.Faction == Faction.Impostor) AUSPlugin.DebugLogMessage($"Failed to assign {customRole.RoleName} because max Impostor members reached!");
                         else
                         {
-                            if (customRole.Faction == Faction.Mafia) mafiaCount++;
+                            if (customRole.Faction == Faction.Impostor) impostorCount++;
 
                             rolesAssigned.Add(RoleId.Get(customRole.GetType()));
                             AUSPlugin.DebugLogMessage($"Assigned {customRole.RoleName}!");
@@ -167,8 +167,8 @@ public static class TouRoleManagerPatches
         }
 
         // Assign vanilla roles to anyone who did not receive a role.
-        foreach (var player in crewmates) player.RpcSetRole((RoleTypes)RoleId.Get<Villager>());
-        foreach (var player in impostors) player.RpcSetRole((RoleTypes)RoleId.Get<Mafia>());
+        foreach (var player in crewmates) player.RpcSetRole((RoleTypes)RoleId.Get<Crewmate>());
+        foreach (var player in impostors) player.RpcSetRole((RoleTypes)RoleId.Get<Impostor>());
     }
 
     public static void AssignTargets()
@@ -358,8 +358,8 @@ public static class TouRoleManagerPatches
         var maxSlots = players < 15 ? players : 15;
         List<RoleListOption> impBuckets =
         [
-            RoleListOption.MafiaDeception, RoleListOption.MafiaKilling, RoleListOption.MafiaSupport, RoleListOption.MafiaUtility,
-            RoleListOption.RandomMafia
+            RoleListOption.ImpostorDeception, RoleListOption.ImpostorKilling, RoleListOption.ImpostorSupport, RoleListOption.ImpostorUtility,
+            RoleListOption.RandomImpostor
         ];
         List<RoleListOption> buckets = [];
         var anySlots = 0;
@@ -410,7 +410,7 @@ public static class TouRoleManagerPatches
         else if (impostors > 5) impostors = 5;*/
         if (impostors > 4) impostors = 4;
 
-        if (AllAnyMode()) // in AA, assign Mafia Count based on the rate of all roles and mafia roles.
+        if (AllAnyMode()) // in AA, assign Impostor Count based on the rate of all roles and impostor roles.
         {
             impostors = 0;
             var effectiveRoles = new List<ICustomAURole>();
@@ -428,21 +428,21 @@ public static class TouRoleManagerPatches
 
             float totalWeight = effectiveRoles.Sum(r => r.GetChance() ?? 0f);
 
-            float mafiaWeight = effectiveRoles
-                .Where(r => r.Faction == Faction.Mafia)
+            float impostorWeight = effectiveRoles
+                .Where(r => r.Faction == Faction.Impostor)
                 .Sum(r => r.GetChance() ?? 0f);
 
-            float mafiaProbability = mafiaWeight / totalWeight;
-            float mafiaPercent = mafiaProbability * 100f;
+            float impostorProbability = impostorWeight / totalWeight;
+            float impostorPercent = impostorProbability * 100f;
 
-            var mafiaBucketCount = RolelistMechanic.GetBuckets().Count(x => impBuckets.Contains(x));
-            impostors += mafiaBucketCount;
+            var impostorBucketCount = RolelistMechanic.GetBuckets().Count(x => impBuckets.Contains(x));
+            impostors += impostorBucketCount;
 
             var anyBucketCount = RolelistMechanic.GetBuckets().Count(x => x == RoleListOption.Any);
             for (int i = 0; i < anyBucketCount; i++)
             {
                 if (impostors >= 4) break;
-                if (UnityEngine.Random.value < mafiaProbability)
+                if (UnityEngine.Random.value < impostorProbability)
                     impostors++;
             }
         }

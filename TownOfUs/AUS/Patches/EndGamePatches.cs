@@ -1,4 +1,3 @@
-using System.Text;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using MiraAPI.Modifiers;
@@ -6,6 +5,7 @@ using MiraAPI.Modifiers.Types;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
+using System.Text;
 using TMPro;
 using TownOfUs.Events;
 using TownOfUs.Modifiers;
@@ -17,6 +17,7 @@ using TownOfUs.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using static UnityEngine.ProBuilder.AutoUnwrapSettings;
 using Object = UnityEngine.Object;
 
 namespace TownOfUs.Patches;
@@ -321,14 +322,14 @@ public static class EndGamePatches
         switch (EndGameEvents.winType)
         {
             case 1:
-                text.text = "<size=4>Village Win!</size>";
-                text.color = RoleColors.Village;
-                instance.BackgroundBar.material.SetColor(ShaderID.Color, RoleColors.Village);
+                text.text = "<size=4>Crewmate Win!</size>";
+                text.color = RoleColors.Crewmate;
+                instance.BackgroundBar.material.SetColor(ShaderID.Color, RoleColors.Crewmate);
                 break;
             case 2:
-                text.text = "<size=4>Mafia Win!</size>";
-                text.color = RoleColors.Mafia;
-                instance.BackgroundBar.material.SetColor(ShaderID.Color, RoleColors.Mafia);
+                text.text = "<size=4>Impostor Win!</size>";
+                text.color = RoleColors.Impostor;
+                instance.BackgroundBar.material.SetColor(ShaderID.Color, RoleColors.Impostor);
                 break;
             default:
                 text.text = string.Empty;

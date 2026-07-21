@@ -1,5 +1,4 @@
 ﻿using TMPro;
-using TownOfUs.Patches.Options;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -36,12 +35,6 @@ public static class ChatControllerPatches
             return;
         }
 
-        if (PlayerControl.LocalPlayer.HasModifier<ThreatenedModifier>() && !PlayerControl.LocalPlayer.Data.IsDead)
-        {
-            _noticeText.text = "You cannot chat; You have been Threatened.";
-            __instance.freeChatField.SetVisible(false);
-            __instance.quickChatField.SetVisible(false);
-        }
         /*else/if (TeamChatPatches.TeamChatActive && !PlayerControl.LocalPlayer.Data.IsDead)
         {
             _noticeText.text = string.Empty;

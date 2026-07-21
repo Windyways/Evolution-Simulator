@@ -1,7 +1,4 @@
 using System.Collections;
-using HarmonyLib;
-using Reactor.Utilities;
-using Reactor.Utilities.Extensions;
 using UnityEngine;
 
 namespace TownOfUs.Patches;

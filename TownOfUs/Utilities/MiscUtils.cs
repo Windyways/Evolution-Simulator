@@ -70,11 +70,11 @@ public static class MiscUtils
     }
 
     public static int KillersAliveCount => Helpers.GetAlivePlayers().Count(x =>
-        x.Is(Faction.Mafia))
+        x.Is(Faction.Impostor))
     ;
 
     public static int RealKillersAliveCount => Helpers.GetAlivePlayers().Count(x =>
-        x.Is(Faction.Mafia));
+        x.Is(Faction.Impostor));
 
     public static int NKillersAliveCount => 0;// Helpers.GetAlivePlayers().Count(x =>
         //x.Is(Faction.Coven) || x.Is(Faction.Werewolf) || x.Is(Faction.SerialKiller) || x.Is(Faction.Apocalypse));
@@ -181,15 +181,15 @@ public static class MiscUtils
         }
         if (role.IsNeutral())
         {
-            return Alignment.IndependentEvil;
+            return Alignment.NeutralEvil;
         }
         else if (role.IsImpostor())
         {
-            return Alignment.MafiaSupport;
+            return Alignment.ImpostorSupport;
         }
         else
         {
-            return Alignment.VillageUtility;
+            return Alignment.CrewmateUtility;
         }
     }
 

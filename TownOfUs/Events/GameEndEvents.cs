@@ -31,14 +31,17 @@ public static class EndGameEvents
             or GameOverReason.ImpostorDisconnect)
         {
             winType = 1;
-            GameHistory.WinningFaction = $"<color=#{RoleColors.Village.ToHtmlStringRGBA()}>Village</color>";
+            GameHistory.WinningFaction = $"<color=#{RoleColors.Crewmate.ToHtmlStringRGBA()}>Crewmate</color>";
+            FactionReferences.UpdateFactionResult(Faction.Crewmate, true);
+            FactionReferences.UpdateFactionResult(Faction.Neutral, false);
+            FactionReferences.UpdateFactionResult(Faction.Impostor, false);
         }
-        else if (reason is GameOverReason.ImpostorsByKill or GameOverReason.ImpostorsBySabotage
+        /*else if (reason is GameOverReason.ImpostorsByKill or GameOverReason.ImpostorsBySabotage
                  or GameOverReason.ImpostorsByVote or GameOverReason.CrewmateDisconnect)
         {
             winType = 2;
-            GameHistory.WinningFaction = $"<color=#{RoleColors.Mafia.ToHtmlStringRGBA()}>Mafia</color>";
-        }
+            GameHistory.WinningFaction = $"<color=#{RoleColors.Impostor.ToHtmlStringRGBA()}>Impostor</color>";
+        }*/
 
         if (reason == CustomGameOver.GameOverReason<DrawGameOver>())
         {

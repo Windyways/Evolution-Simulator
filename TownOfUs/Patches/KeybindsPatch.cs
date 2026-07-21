@@ -1,7 +1,5 @@
-using HarmonyLib;
 using Rewired;
 using Rewired.Data;
-using TownOfUs.Utilities;
 
 namespace TownOfUs.Patches;
 

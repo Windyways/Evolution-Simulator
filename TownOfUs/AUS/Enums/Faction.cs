@@ -2,9 +2,9 @@
 
 public enum Faction
 {
-    Village,
-    Independent,
-    Mafia,
+    Crewmate,
+    Neutral,
+    Impostor,
 
     None,
 }

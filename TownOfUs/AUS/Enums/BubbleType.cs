@@ -13,7 +13,7 @@ public enum BubbleType
     Kidnapper,
 
     Coven,
-    Mafia,
+    Impostor,
     Apocalypse,
 
 }

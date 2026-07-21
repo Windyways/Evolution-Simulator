@@ -30,24 +30,28 @@ public interface ICustomAURole : ICustomRole
     {
         get
         {
-            if (Alignment == Alignment.VillageInvestigative) return TouRoleGroups.VI;
-            if (Alignment == Alignment.VillageKilling) return TouRoleGroups.VK;
-            if (Alignment == Alignment.VillageProtective) return TouRoleGroups.VP;
-            if (Alignment == Alignment.VillageSupport) return TouRoleGroups.VS;
-            if (Alignment == Alignment.VillageUtility) return TouRoleGroups.VU;
+            if (Faction == Faction.Crewmate) return TouRoleGroups.Crewmate;
+            if (Faction == Faction.Neutral) return TouRoleGroups.Neutral;
+            if (Faction == Faction.Impostor) return TouRoleGroups.Impostor;
 
-            if (Alignment == Alignment.IndependentEvil) return TouRoleGroups.IE;
+            /*if (Alignment == Alignment.CrewmateInvestigative) return TouRoleGroups.VI;
+            if (Alignment == Alignment.CrewmateKilling) return TouRoleGroups.VK;
+            if (Alignment == Alignment.CrewmateProtective) return TouRoleGroups.VP;
+            if (Alignment == Alignment.CrewmateSupport) return TouRoleGroups.VS;
+            if (Alignment == Alignment.CrewmateUtility) return TouRoleGroups.VU;
 
-            if (Alignment == Alignment.MafiaDeception) return TouRoleGroups.MD;
-            if (Alignment == Alignment.MafiaKilling) return TouRoleGroups.MK;
-            if (Alignment == Alignment.MafiaSupport) return TouRoleGroups.MS;
-            if (Alignment == Alignment.MafiaUtility) return TouRoleGroups.MU;
+            if (Alignment == Alignment.NeutralEvil) return TouRoleGroups.IE;
+
+            if (Alignment == Alignment.ImpostorDeception) return TouRoleGroups.MD;
+            if (Alignment == Alignment.ImpostorKilling) return TouRoleGroups.MK;
+            if (Alignment == Alignment.ImpostorSupport) return TouRoleGroups.MS;
+            if (Alignment == Alignment.ImpostorUtility) return TouRoleGroups.MU;*/
 
             return Team switch
             {
-                ModdedRoleTeams.Crewmate => TouRoleGroups.VS,
-                ModdedRoleTeams.Impostor => TouRoleGroups.MS,
-                _ => TouRoleGroups.IE
+                ModdedRoleTeams.Crewmate => TouRoleGroups.Crewmate,
+                ModdedRoleTeams.Impostor => TouRoleGroups.Impostor,
+                _ => TouRoleGroups.Neutral
             };
         }
     }
@@ -91,9 +95,9 @@ public interface ICustomAURole : ICustomRole
             ? "<color=#ffffff" + customRole.Alignment.ToDisplayString()
             : "Custom";
 
-        if (alignment.Contains("Village")) alignment = alignment.Replace("Town", $"<color=#" + RoleColors.Village.ToHtmlStringRGBA() + ">Village</color>");
-        if (alignment.Contains("Independent")) alignment = alignment.Replace("Neutral", $"<color=#" + RoleColors.Independent.ToHtmlStringRGBA() + ">Independent</color>");
-        if (alignment.Contains("Mafia")) alignment = alignment.Replace("Mafia", $"<color=#" + RoleColors.Mafia.ToHtmlStringRGBA() + ">Mafia</color>");
+        if (alignment.Contains("Crewmate")) alignment = alignment.Replace("Crewmate", $"<color=#" + RoleColors.Crewmate.ToHtmlStringRGBA() + ">Crewmate</color>");
+        if (alignment.Contains("Neutral")) alignment = alignment.Replace("Neutral", $"<color=#" + RoleColors.Neutral.ToHtmlStringRGBA() + ">Neutral</color>");
+        if (alignment.Contains("Impostor")) alignment = alignment.Replace("Impostor", $"<color=#" + RoleColors.Impostor.ToHtmlStringRGBA() + ">Impostor</color>");
 
         var prefix = " a";
         if (role.RoleName.StartsWithVowel()) prefix = " an";
@@ -117,6 +121,10 @@ public interface ICustomAURole : ICustomRole
     }
 
     void Function(PlayerControl target, int Button)
+    {
+    }
+
+    void DoVisit(PlayerControl target, int Button, bool visiting, bool kill)
     {
     }
 

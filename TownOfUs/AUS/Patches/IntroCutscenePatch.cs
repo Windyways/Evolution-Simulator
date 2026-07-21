@@ -1,5 +1,4 @@
 using UnityEngine;
-using AmongUs.GameOptions;
 
 namespace AmongUsSalem.Patches;
 
@@ -17,10 +16,10 @@ public static class IntroCutscene_ShowTeam__d_MoveNext
     {
         if (PlayerControl.LocalPlayer.Data.Role is ICustomAURole ausRole)
         {
-            if (ausRole.Faction == Faction.Mafia)
+            if (ausRole.Faction == Faction.Impostor)
             {
-                __instance.__4__this.TeamTitle.text = "Mafia";
-                __instance.__4__this.TeamTitle.color = RoleColors.Mafia;
+                __instance.__4__this.TeamTitle.text = "Impostor";
+                __instance.__4__this.TeamTitle.color = RoleColors.Impostor;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
             }
 
@@ -41,10 +40,10 @@ public static class IntroCutscene_ShowRole_d__24
     {
         if (PlayerControl.LocalPlayer.Data.Role is ICustomAURole ausRole)
         {
-            if (ausRole.Faction == Faction.Mafia)
+            if (ausRole.Faction == Faction.Impostor)
             {
-                __instance.__4__this.TeamTitle.text = "Mafia";
-                __instance.__4__this.TeamTitle.color = RoleColors.Mafia;
+                __instance.__4__this.TeamTitle.text = "Impostor";
+                __instance.__4__this.TeamTitle.color = RoleColors.Impostor;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = IntroCutscene_ShowTeam__d_MoveNext.GetIntroSound(RoleTypes.Shapeshifter);
             }
 
@@ -65,10 +64,10 @@ public static class IntroCutscene_CoBegin_d__29
     {
         if (PlayerControl.LocalPlayer.Data.Role is ICustomAURole ausRole)
         {
-            if (ausRole.Faction == Faction.Mafia)
+            if (ausRole.Faction == Faction.Impostor)
             {
-                __instance.__4__this.TeamTitle.text = "Mafia";
-                __instance.__4__this.TeamTitle.color = RoleColors.Mafia;
+                __instance.__4__this.TeamTitle.text = "Impostor";
+                __instance.__4__this.TeamTitle.color = RoleColors.Impostor;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = IntroCutscene_ShowTeam__d_MoveNext.GetIntroSound(RoleTypes.Shapeshifter);
             }
 

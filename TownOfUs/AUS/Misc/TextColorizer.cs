@@ -4,44 +4,17 @@ namespace AmongUsSalem.Misc;
 
 public static class TextColorizer
 {
-    // Creeper: You creeped on {target.Name()} and saw {player.Name()} visit them!
-    // Creeper: You creeped on {target.Name()} but they were not visited at night.
-
-    // Define the words and their colors
     private static readonly Dictionary<string, Func<string>> colorMap = new()
     {
-        // Town
-        { "Villager", () => "#3f7095" },
-        { "Bulletproof", () => "#3f7095" },
-        { "Cops", () => "#3f7095" },
-        { "Sniper", () => "#3f7095" },
-        { "Granny", () => "#3f7095" },
-        { "Deputy", () => "#3f7095" },
-        { "Fairy", () => "#3f7095" },
-        { "Cop", () => "#3f7095" },
-        { "Doctor", () => "#3f7095" },
-        { "Gravedigger", () => "#3f7095" },
-        { "Traveler", () => "#3f7095" },
+        // Crewmate
+        { "Crewmate", () => "#b3ffff" },
         
-        // Town
-        { "Fool", () => "#3f7095" },
+        // Neutral
+        { "Neutral", () => "#a9a9a9" },
+        { "Survivor", () => "#dddd00" },
 
-        // Mafia
-        { "Mafia", () => "#903e3f" },
-        { "Godfather", () => "#903e3f" },
-        { "Interrogator", () => "#903e3f" },
-        { "Operator", () => "#903e3f" },
-        { "Kamikaze", () => "#903e3f" },
-        { "Robber", () => "#903e3f" },
-        { "Framer", () => "#903e3f" },
-        { "Toaster", () => "#903e3f" },
-        { "Henchman", () => "#903e3f" },
-        { "Lawyer", () => "#903e3f" },
-        { "Maid", () => "#903e3f" },
-
-        // Keywords
-        { "Village", () => "#3f7095" },
-        { "Independent", () => "#3f7095" },
+        // Impostor
+        { "Impostor", () => "#ff0000" },
     };
 
     // Build a single regex that matches any keyword. Longer keys are listed first to prefer them when overlapping.

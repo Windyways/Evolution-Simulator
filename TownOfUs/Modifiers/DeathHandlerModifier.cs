@@ -24,9 +24,9 @@ public sealed class DeathHandlerModifier : BaseModifier
     // This will specify who killed the player.
     public PlayerControl KillerPlayer { get; set; }
 
-    public Color DeathColor { get; set; } = RoleColors.Village;
-    public Color SecondaryDeathColor { get; set; } = RoleColors.Village;
-    public Color ThirdDeathColor { get; set; } = RoleColors.Village;
+    public Color DeathColor { get; set; } = RoleColors.Crewmate;
+    public Color SecondaryDeathColor { get; set; } = RoleColors.Crewmate;
+    public Color ThirdDeathColor { get; set; } = RoleColors.Crewmate;
 
     [MethodRpc((uint)AUSRpc.UpdateDeathHandler, SendImmediately = true)]
     public static void RpcUpdateDeathHandler(PlayerControl player, DeathReasonShow causeOfDeath = DeathReasonShow.None, DeathHandlerOverride diedThisRound = DeathHandlerOverride.Ignore, string killedBy = "null", DeathHandlerOverride lockInfo = DeathHandlerOverride.Ignore)
@@ -47,9 +47,9 @@ public sealed class DeathHandlerModifier : BaseModifier
 
     public static Color GetColor(DeathReasonShow causeOfDeath)
     {
-        if (causeOfDeath == DeathReasonShow.ExecutedByTheVillage) return Color.yellow;
-        if (causeOfDeath is DeathReasonShow.KilledByTheMafia or DeathReasonShow.KilledByTheToaster or DeathReasonShow.BlownUpByTheKamikaze) return RoleColors.Mafia;
-        return RoleColors.Village;
+        if (causeOfDeath == DeathReasonShow.Ejected) return Color.magenta;
+        if (causeOfDeath is DeathReasonShow.KilledByAnImpostor) return RoleColors.Impostor;
+        return RoleColors.Crewmate;
     }
 
     public static bool IsCoroutineRunning { get; set; }
@@ -68,9 +68,9 @@ public sealed class DeathHandlerModifier : BaseModifier
         if (killedBy != "null") deathHandler.KilledBy = killedBy;
         if (lockInfo != DeathHandlerOverride.Ignore) deathHandler.LockInfo = lockInfo is DeathHandlerOverride.SetTrue;
 
-        if (deathHandler.DeathColor == RoleColors.Village) deathHandler.DeathColor = col;
-        else if (deathHandler.SecondaryDeathColor == RoleColors.Village) deathHandler.SecondaryDeathColor = col;
-        else if (deathHandler.ThirdDeathColor == RoleColors.Village) deathHandler.ThirdDeathColor = col;
+        if (deathHandler.DeathColor == RoleColors.Crewmate) deathHandler.DeathColor = col;
+        else if (deathHandler.SecondaryDeathColor == RoleColors.Crewmate) deathHandler.SecondaryDeathColor = col;
+        else if (deathHandler.ThirdDeathColor == RoleColors.Crewmate) deathHandler.ThirdDeathColor = col;
 
         IsCoroutineRunning = false;
     }

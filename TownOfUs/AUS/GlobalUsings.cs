@@ -9,9 +9,9 @@ global using AmongUsSalem.MCI;
 global using AmongUsSalem.Modifiers;
 global using AmongUsSalem.Patches;
 global using AmongUsSalem.Events;
-global using AmongUsSalem.Wiki;
-global using AmongUsSalem.MafiaRoles;
+global using AmongUsSalem.ImpostorRoles;
 global using AmongUsSalem.NeutralRoles;
+global using AmongUsSalem.AI;
 
 global using TownOfUs.Roles;
 global using TownOfUs.Buttons;

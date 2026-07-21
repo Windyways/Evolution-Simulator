@@ -2,18 +2,20 @@
 
 public enum Alignment
 {
-    VillageInvestigative,
-    VillageKilling,
-    VillageProtective,
-    VillageSupport,
-    VillageUtility,
+    CrewmateInvestigative,
+    CrewmateKilling,
+    CrewmateProtective,
+    CrewmateSupport,
+    CrewmateUtility,
 
-    IndependentEvil,
+    NeutralBenign,
+    NeutralEvil,
+    NeutralKilling,
 
-    MafiaDeception,
-    MafiaKilling,
-    MafiaSupport,
-    MafiaUtility,
+    ImpostorDeception,
+    ImpostorKilling,
+    ImpostorSupport,
+    ImpostorUtility,
 
     None,
 }

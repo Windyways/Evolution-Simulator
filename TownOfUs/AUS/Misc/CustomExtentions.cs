@@ -1,4 +1,5 @@
 using Reactor.Networking.Rpc;
+using TownOfUs.Events;
 using UnityEngine;
 
 namespace AmongUsSalem.Misc;
@@ -116,52 +117,9 @@ public static class CustomExtentions
         return customRole;
     }
 
-
-    /// <summary>
-    /// Networked Custom Murder method.
-    /// </summary>
-    /// <param name="source">The killer.</param>
-    /// <param name="target">The player to murder.</param>
-    [MethodRpc((uint)AUSRpc.GhostRoleMurder, LocalHandling = RpcLocalHandling.Before)]
-    public static void RpcGhostRoleMurder(
-        this PlayerControl source,
-        PlayerControl target)
-    {
-        if (LobbyBehaviour.Instance)
-            return;
-
-        if (!source.HasDied())
-            return;
-
-        var role = source.GetRoleWhenAlive();
-        if (source.Data.Role is IGhostRole)
-        {
-            role = source.Data.Role;
-        }
-
-        var customRole = role as ICustomAURole;
-        if (customRole == null)
-            return;
-
-        source.CustomMurder(
-            target,
-            MurderResultFlags.Succeeded);
-
-        // Force-sync death state after ghost role murder to prevent desyncs
-        if (target.HasDied())
-        {
-            DeathStateSync.ScheduleDeathStateSync(target, true);
-            // Request validation after kill to ensure all clients are in sync
-            if (source.AmOwner)
-            {
-                DeathStateSync.RequestValidationAfterKill(source);
-            }
-        }
-    }
-
     public static bool IsNeutral(this ICustomAURole customRole)
     {
-        return customRole.Faction == Faction.Independent;
+        return customRole.Faction == Faction.Neutral;
     }
 
     public static bool IsHidden(this SpriteRenderer sr)
@@ -191,7 +149,7 @@ public static class CustomExtentions
         return sr;
     }
 
-    public static ShowRoleIcon GetIcon(this PlayerControl player)
+    public static ShowRoleIcon? GetIcon(this PlayerControl player)
     {
         foreach (var icon in ShowRoleIcon.AllRoleIcons)
         {
@@ -207,24 +165,141 @@ public static class CustomExtentions
         return Alignment.None;
     }
 
-    public static DeathReasonShow GetDeathReason(this PlayerControl player, DeathReasonShow newDR = DeathReasonShow.None)
-    {
-        if (newDR != DeathReasonShow.None) return newDR; // For roles that can apply multiple death reasons, like Toaster.
-
-        if (player.Is(Faction.Mafia)) return DeathReasonShow.KilledByTheMafia;
-        if (player.IsRole<Sniper>()) return DeathReasonShow.KilledByTheSniper;
-        if (player.IsRole<Granny>()) return DeathReasonShow.KilledByTheGranny;
-        return DeathReasonShow.None;
-    }
-
     public static RoleBehaviour GetRoleFromRoleBehaviour(this RoleBehaviour role)
     {
         var ushortRole = RoleId.Get(role.GetType());
         return RoleManager.Instance.GetRole((RoleTypes)ushortRole);
     }
 
-    public static bool IsSheriff(this PlayerControl player)
+    public static SystemTypes GetPlayerRoom(this PlayerControl player)
     {
-        return player.IsRole<Cop>() || player.IsRole<Deputy>();
+        var gameObject = player.gameObject;
+        foreach (var room in ShipStatus.Instance.FastRooms)
+        {
+            bool flag = room.Value.roomArea.OverlapPoint(gameObject.transform.position);
+            if (flag)
+            {
+                return room.Key;
+            }
+        }
+        return SystemTypes.Hallway;
+    }
+
+
+    public static List<SystemTypes> AvailableRooms = new List<SystemTypes>();
+    public static void GetAvailableRooms(this List<SystemTypes> list, bool isGodzilla = false)
+    {
+        if (CheckMap.MapSelected == CurrentMap.Skeld)
+        {
+            list.Add(SystemTypes.Cafeteria);
+            list.Add(SystemTypes.Electrical);
+            list.Add(SystemTypes.LowerEngine);
+            list.Add(SystemTypes.Nav);
+            list.Add(SystemTypes.Reactor);
+            list.Add(SystemTypes.Shields);
+            list.Add(SystemTypes.Storage);
+            list.Add(SystemTypes.UpperEngine);
+            list.Add(SystemTypes.Weapons);
+            list.Add(SystemTypes.Admin);
+            list.Add(SystemTypes.Comms);
+            list.Add(SystemTypes.Security);
+            list.Add(SystemTypes.MedBay);
+            list.Add(SystemTypes.LifeSupp);
+            if (DeathEventHandlers.CurrentRound == 1 && isGodzilla) list.Remove(SystemTypes.Cafeteria);
+        }
+        else if (CheckMap.MapSelected == CurrentMap.MiraHQ)
+        {
+            list.Add(SystemTypes.Launchpad);
+            list.Add(SystemTypes.Reactor);
+            list.Add(SystemTypes.Laboratory);
+            list.Add(SystemTypes.LockerRoom);
+            list.Add(SystemTypes.Comms);
+            list.Add(SystemTypes.MedBay);
+            list.Add(SystemTypes.Decontamination);
+            list.Add(SystemTypes.Office);
+            list.Add(SystemTypes.Greenhouse);
+            list.Add(SystemTypes.Admin);
+            list.Add(SystemTypes.Cafeteria);
+            list.Add(SystemTypes.Storage);
+            list.Add(SystemTypes.Balcony);
+            if (DeathEventHandlers.CurrentRound == 1 && isGodzilla) list.Remove(SystemTypes.Launchpad);
+            if (DeathEventHandlers.CurrentRound == 2 && isGodzilla) list.Remove(SystemTypes.Cafeteria);
+        }
+        else if (CheckMap.MapSelected == CurrentMap.Polus)
+        {
+            list.Add(SystemTypes.Dropship);
+            list.Add(SystemTypes.Electrical);
+            list.Add(SystemTypes.Security);
+            list.Add(SystemTypes.LifeSupp);
+            list.Add(SystemTypes.BoilerRoom);
+            list.Add(SystemTypes.Weapons);
+            list.Add(SystemTypes.Comms);
+            list.Add(SystemTypes.Office);
+            list.Add(SystemTypes.Admin);
+            list.Add(SystemTypes.Laboratory);
+            list.Add(SystemTypes.Specimens);
+            list.Add(SystemTypes.Storage);
+            if (DeathEventHandlers.CurrentRound == 1 && isGodzilla) list.Remove(SystemTypes.Dropship);
+            if (DeathEventHandlers.CurrentRound == 2 && isGodzilla) list.Remove(SystemTypes.Office);
+        }
+        else if (CheckMap.MapSelected == CurrentMap.Airship)
+        {
+            list.Add(SystemTypes.Records);
+            list.Add(SystemTypes.GapRoom);
+            list.Add(SystemTypes.MeetingRoom);
+            list.Add(SystemTypes.Brig);
+            list.Add(SystemTypes.VaultRoom);
+            list.Add(SystemTypes.Engine);
+            list.Add(SystemTypes.Comms);
+            list.Add(SystemTypes.Cockpit);
+            list.Add(SystemTypes.Armory);
+            list.Add(SystemTypes.Kitchen);
+            list.Add(SystemTypes.ViewingDeck);
+            list.Add(SystemTypes.Security);
+            list.Add(SystemTypes.Electrical);
+            list.Add(SystemTypes.MedBay);
+            list.Add(SystemTypes.CargoBay);
+            list.Add(SystemTypes.Lounge);
+            list.Add(SystemTypes.Showers);
+            list.Add(SystemTypes.MainHall);
+            if (DeathEventHandlers.CurrentRound == 1 && isGodzilla)
+            {
+                list.Remove(SystemTypes.Records);
+                list.Remove(SystemTypes.Brig);
+                list.Remove(SystemTypes.Engine);
+                list.Remove(SystemTypes.Kitchen);
+                list.Remove(SystemTypes.CargoBay);
+                list.Remove(SystemTypes.MainHall);
+            }
+        }
+        else if (CheckMap.MapSelected == CurrentMap.Fungle)
+        {
+            list.Add(SystemTypes.Cafeteria);
+            list.Add(SystemTypes.Kitchen);
+            list.Add(SystemTypes.Storage);
+            list.Add(SystemTypes.MeetingRoom);
+            list.Add(SystemTypes.Laboratory);
+            list.Add(SystemTypes.Greenhouse);
+            list.Add(SystemTypes.Reactor);
+            list.Add(SystemTypes.UpperEngine);
+            list.Add(SystemTypes.Comms);
+            list.Add(SystemTypes.MiningPit);
+            list.Add(SystemTypes.Lookout);
+            list.Add(SystemTypes.Dropship);
+            if (DeathEventHandlers.CurrentRound == 2 && isGodzilla) list.Remove(SystemTypes.MeetingRoom);
+        }
+    }
+
+    public static SystemTypes GetPlayerRoom(this GameObject gameObject)
+    {
+        foreach (var room in ShipStatus.Instance.FastRooms)
+        {
+            bool flag = room.Value.roomArea.OverlapPoint(gameObject.transform.position);
+            if (flag)
+            {
+                return room.Key;
+            }
+        }
+        return SystemTypes.Comms;
     }
 }

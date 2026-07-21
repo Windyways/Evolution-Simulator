@@ -186,7 +186,7 @@ public static class RpcSetTasksPatch
         {
             if (__instance.Object != null)
             {
-                if (__instance.Object.Is(Faction.Village))
+                if (__instance.Object.Is(Faction.Crewmate))
                 {
                     foreach (var id in decidedCommonTasks)
                         TasksList.Add(id);

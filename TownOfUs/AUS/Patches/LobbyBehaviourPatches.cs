@@ -1,4 +1,4 @@
-﻿using AmongUsSalem.MafiaRoles;
+﻿using AmongUsSalem.ImpostorRoles;
 
 namespace TownOfUs.Patches;
 
@@ -29,7 +29,7 @@ public static class LobbyBehaviourPatches
         DayNightMechanic.DayCount = 0;
         DayNightMechanic.NightCount = 1;
 
-        RolelistMechanic.MafiaCount = 0;
+        RolelistMechanic.ImpostorCount = 0;
 
         if (RoleReferences.PendingNotifications.Count != 0)
         {

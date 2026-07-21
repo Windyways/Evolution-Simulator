@@ -8,7 +8,6 @@ using Reactor;
 using Reactor.Localization;
 using Reactor.Networking;
 using System.Globalization;
-using System.Reflection;
 using TownOfUs.Patches.Misc;
 using static AmongUsSalem.MCI.Reactor_Coroutines;
 using ModCompatibility = TownOfUs.Modules.ModCompatibility;
@@ -18,7 +17,7 @@ namespace TownOfUs;
 /// <summary>
 ///     Plugin class for Among Us Salem.
 /// </summary>
-[BepInAutoPlugin("windyways.mau", "Mafia Among Us")]
+[BepInAutoPlugin("windyways.es", "Evolution Simulator")]
 [BepInProcess("Among Us.exe")]
 [BepInDependency(ReactorPlugin.Id)]
 [BepInDependency(MiraApiPlugin.Id)]
@@ -53,7 +52,7 @@ public partial class AUSPlugin : BasePlugin, IMiraPlugin
     public static bool IsDevBuild => true;
     
     /// <inheritdoc />
-    public string OptionsTitleText => "Mafia\nAmong Us";
+    public string OptionsTitleText => "Evolution\nSimulator";
 
     /// <inheritdoc />
     public ConfigFile GetConfigFile()
@@ -71,7 +70,7 @@ public partial class AUSPlugin : BasePlugin, IMiraPlugin
     /// </summary>
     public override void Load()
     {
-        ReactorCredits.Register("Mafia Among Us", Version, IsDevBuild, ReactorCredits.AlwaysShow);
+        ReactorCredits.Register("Evolution Simulator", Version, IsDevBuild, ReactorCredits.AlwaysShow);
         LocalizationManager.Register(new TaskProvider());
 
         TouAssets.Initialize();
@@ -118,6 +117,7 @@ public partial class AUSPlugin : BasePlugin, IMiraPlugin
         Debugger = AddComponent<Debugger>();
 
         RoleReferences.Initialize();
+        FactionReferences.Initialize();
     }
 
     public enum MsgType { Message, Warning, Error }

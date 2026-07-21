@@ -40,51 +40,14 @@ namespace AmongUsSalem.Misc
 
         public static void Initialize()
         {
-            // --- VILLAGE ---
-            // -- VI --
-            roleStats.Add("Cop", new RoleStats("Cop", RoleColors.Village));
+            // --- CREWMATE ---
+            roleStats.Add("Crewmate", new RoleStats("Crewmate", RoleColors.Crewmate));
 
-            // -- VK --
-            roleStats.Add("Sniper", new RoleStats("Sniper", RoleColors.Village));
-            roleStats.Add("Granny", new RoleStats("Granny", RoleColors.Village));
+            // --- NEUTRAL ---
+            roleStats.Add("Survivor", new RoleStats("Survivor", RoleColors.Survivor));
 
-            // -- VP --
-            roleStats.Add("Doctor", new RoleStats("Doctor", RoleColors.Village));
-            roleStats.Add("Traveler", new RoleStats("Traveler", RoleColors.Village));
-
-            // -- VS --
-            roleStats.Add("Fairy", new RoleStats("Fairy", RoleColors.Village));
-            roleStats.Add("Deputy", new RoleStats("Deputy", RoleColors.Village));
-            roleStats.Add("Gravedigger", new RoleStats("Gravedigger", RoleColors.Village));
-
-            // -- VU --
-            roleStats.Add("Villager", new RoleStats("Villager", RoleColors.Village));
-            roleStats.Add("Bulletproof", new RoleStats("Bulletproof", RoleColors.Village));
-
-            // --- INDEPENDENT ---
-            // -- IE --
-            roleStats.Add("Fool", new RoleStats("Fool", RoleColors.Independent));
-            roleStats.Add("Mad Scientist", new RoleStats("Mad Scientist", RoleColors.Independent));
-
-            // --- MAFIA ---
-            // -- MD --
-            roleStats.Add("Framer", new RoleStats("Framer", RoleColors.Mafia));
-            roleStats.Add("Maid", new RoleStats("Maid", RoleColors.Mafia));
-
-            // -- MK --
-            roleStats.Add("Mafia", new RoleStats("Mafia", RoleColors.Mafia));
-            roleStats.Add("Godfather", new RoleStats("Godfather", RoleColors.Mafia));
-            roleStats.Add("Kamikaze", new RoleStats("Kamikaze", RoleColors.Mafia));
-            roleStats.Add("Toaster", new RoleStats("Toaster", RoleColors.Mafia));
-
-            // -- MS --
-            roleStats.Add("Interrogator", new RoleStats("Interrogator", RoleColors.Mafia));
-            roleStats.Add("Operator", new RoleStats("Operator", RoleColors.Mafia));
-            roleStats.Add("Lawyer", new RoleStats("Lawyer", RoleColors.Mafia));
-
-            // -- MU --
-            roleStats.Add("Robber", new RoleStats("Robber", RoleColors.Mafia));
-            roleStats.Add("Henchman", new RoleStats("Henchman", RoleColors.Mafia));
+            // --- IMPOSTOR ---
+            roleStats.Add("Impostor", new RoleStats("Impostor", RoleColors.Impostor));
 
             LoadRoleStats(filePath);
         }

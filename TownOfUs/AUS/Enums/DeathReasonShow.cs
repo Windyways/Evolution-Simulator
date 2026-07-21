@@ -4,14 +4,7 @@ public enum DeathReasonShow
 {
     None,
     Alive,
+    Ejected,
    
-    KilledByTheSniper,
-    KilledByTheGranny,
-
-    KilledByTheMafia,
-    KilledByTheToaster,
-    BlownUpByTheKamikaze,
-    CleanedBytheMaid,
-
-    ExecutedByTheVillage
+    KilledByAnImpostor,
 }

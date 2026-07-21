@@ -23,7 +23,7 @@ public static class Feedback
          else if (target.IsTrapped()) // Some sort of trapper 'attacked' RPC here.
  */
 
-        if (player.AmOwner()) Coroutines.Start(MiscUtils.CoFlash(RoleColors.Mafia));
+        if (player.AmOwner()) Coroutines.Start(MiscUtils.CoFlash(RoleColors.Impostor));
 
         /*if (player.IsRole<Vigilante>())
         {

@@ -16,9 +16,9 @@ public static class DeadSeeVoteColorsPatch
         var player = MiscUtils.PlayerById(voterPlayer.PlayerId);
         if (Debugger.IsDebuggerActive && player != null)
         {
-            if (player.Is(Faction.Village)) PlayerMaterial.SetColors(RoleColors.Village, spriteRenderer);
-            if (player.Is(Faction.Independent)) PlayerMaterial.SetColors(RoleColors.Independent, spriteRenderer);
-            if (player.Is(Faction.Mafia)) PlayerMaterial.SetColors(RoleColors.Mafia, spriteRenderer);
+            if (player.Is(Faction.Crewmate)) PlayerMaterial.SetColors(RoleColors.Crewmate, spriteRenderer);
+            if (player.Is(Faction.Neutral)) PlayerMaterial.SetColors(RoleColors.Neutral, spriteRenderer);
+            if (player.Is(Faction.Impostor)) PlayerMaterial.SetColors(RoleColors.Impostor, spriteRenderer);
         }
         else if (GameOptionsManager.Instance.currentNormalGameOptions.AnonymousVotes && (!OptionGroupSingleton<GeneralOptions>.Instance.TheDeadKnow || !PlayerControl.LocalPlayer.Data.IsDead))
         {
