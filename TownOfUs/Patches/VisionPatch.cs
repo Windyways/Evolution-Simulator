@@ -20,8 +20,8 @@ public static class VisionPatch
 
         var visionFactor = 1f;
 
-
-        if (player.Role.IsImpostor || (player._object.Data.Role is ITownOfUsRole touRole && touRole.HasImpostorVision))
+        var p = player._object;
+        if (p.Is(Faction.Impostor) || p.IsRole<Itinerant>())
         {
             __result = __instance.MaxLightRadius *
                        GameOptionsManager.Instance.currentNormalGameOptions.ImpostorLightMod * visionFactor;

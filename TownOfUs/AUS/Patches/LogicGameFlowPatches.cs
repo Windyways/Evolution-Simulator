@@ -164,7 +164,8 @@ public static class LogicGameFlowPatches
         }
 
         var aliveImpostor = PlayerControl.AllPlayerControls.ToArray().Count(x => x.Is(Faction.Impostor) && !x.HasDied());
-        if (aliveImpostor > 0)
+        var aliveNK = PlayerControl.AllPlayerControls.ToArray().Count(x => x.Is(Alignment.NeutralKilling) && !x.HasDied());
+        if (aliveImpostor > 0 || aliveNK > 0)
             return false;
 
         // Causes the game to draw in extreme scenarios

@@ -118,7 +118,7 @@ public enum AbilityType
     MercenaryGuard,
     MercenaryBribe,
     PlaguebearerInfect,
-    SurvivorVest,
+    ConcordantVest,
 
     VampireBite
     // WerewolfRampage

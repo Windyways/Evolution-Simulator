@@ -135,14 +135,6 @@ public static class EndGamePatches
             if (playerControl.TryGetModifier<DeathHandlerModifier>(out var deathHandler))
             {
                 playerRoleString.Append(AUSPlugin.Culture, $" | {deathHandler.DeathColor.ToTextColor()}{deathHandler.CauseOfDeath.ToSpacedString()}</color>");
-                if (deathHandler.SecondaryCauseOfDeath != DeathReasonShow.Alive)
-                {
-                    playerRoleString.Append(AUSPlugin.Culture, $" | {deathHandler.SecondaryDeathColor.ToTextColor()}{deathHandler.SecondaryCauseOfDeath.ToSpacedString()}</color>");
-                }
-                if (deathHandler.ThirdCauseOfDeath != DeathReasonShow.Alive)
-                {
-                    playerRoleString.Append(AUSPlugin.Culture, $" | {deathHandler.ThirdDeathColor.ToTextColor()}{deathHandler.ThirdCauseOfDeath.ToSpacedString()}</color>");
-                }
             }
             else
             {

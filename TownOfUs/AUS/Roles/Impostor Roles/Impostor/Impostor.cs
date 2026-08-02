@@ -32,7 +32,7 @@ public sealed class Impostor(IntPtr cppPtr) : NeutralRole(cppPtr), ICustomAURole
     public string GetAdvancedDescription()
     {
         return
-            $"Standard vanilla impostor." +
+            $"I can kill players." +
             MiscUtils.AppendOptionsText(GetType());
     }
 
@@ -47,24 +47,8 @@ public sealed class Impostor(IntPtr cppPtr) : NeutralRole(cppPtr), ICustomAURole
     {
         if (Button == 1)
         {
-            Player.RpcCustomMurder(target);
-            VisitingMechanic.RpcAddDeathReason(target, (int)DeathReasonShow.KilledByAnImpostor);
+            Player.RpcCustomMurder(target, showKillAnim: false);
+            VisitingMechanic.RpcAddDeathReason(target, DeathReasonShow.KilledByAnImpostor, RoleColors.Impostor);
         }
     }
-}
-
-public sealed class Impostor_Kill : TownOfUsRoleButton<Impostor, PlayerControl>
-{
-    public override string Name => "Kill";
-    public override BaseKeybind Keybind => Keybinds.PrimaryAction;
-    public override Color TextOutlineColor => RoleColors.Impostor;
-    public override float Cooldown => OptionGroupSingleton<ImpostorOptions>.Instance.Cooldown;
-    public override LoadableAsset<Sprite> Sprite => AUSAssets.KillSprite;
-
-    public override PlayerControl? GetTarget()
-    {
-        return Player.GetClosestLivingPlayer(false, Distance);
-    }
-
-    protected override void OnClick() => VisitingMechanic.CheckVisit(Player, Target, 1, true, true);
 }

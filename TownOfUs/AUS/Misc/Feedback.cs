@@ -16,7 +16,7 @@ public static class Feedback
 
     public static string TooMuchDefense(PlayerControl player, PlayerControl target)
     {
-        /* if (SurvivorFunction.Interfere(target)) SurvivorFunction.NotifySurvivor(player, target);
+        /* if (ConcordantFunction.Interfere(target)) ConcordantFunction.NotifyConcordant(player, target);
          else if (ClericFunction.Interfere(target)) ClericFunction.NotifyCleric(player, target);
          else if (OracleFunction.Interfere(target)) OracleFunction.NotifyOracle(player, target);
          else if (GuardianAngelFunction.Interfere(target)) GuardianAngelFunction.NotifyGuardianAngel(player, target);

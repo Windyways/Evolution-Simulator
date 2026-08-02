@@ -1,4 +1,3 @@
-using Reactor.Networking.Rpc;
 using TownOfUs.Events;
 using UnityEngine;
 
@@ -6,6 +5,22 @@ namespace AmongUsSalem.Misc;
 
 public static class CustomExtentions
 {
+    public static bool IsAlignedWith(this PlayerControl player, PlayerControl target)
+    {
+        if (player.Is(Faction.Impostor) && target.Is(Faction.Impostor)) return true;
+        return false;
+    }
+
+    public static bool IsStandardKiller(this PlayerControl player)
+    {
+        return player.Is(Faction.Impostor) || player.Data.Role is Palingenist;
+    }
+
+    public static bool CanCompleteTasks(this PlayerControl player)
+    {
+        return player.Is(Faction.Crewmate) || player.Data.Role is Concordant;
+    }
+
     public static string Name(this PlayerControl player)
     {
         return player.GetDefaultAppearance().PlayerName;

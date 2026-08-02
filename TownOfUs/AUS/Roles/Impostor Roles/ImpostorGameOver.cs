@@ -65,8 +65,9 @@ public sealed class ImpostorGameOver : CustomGameOver
 
     public static bool WinConditionMet()
     {
+        var aliveNKs = PlayerControl.AllPlayerControls.ToArray().Count(x => !x.HasDied() && x.Is(Alignment.NeutralKilling));
         var aliveImpostors = PlayerControl.AllPlayerControls.ToArray().Count(x => !x.HasDied() && x.Is(Faction.Impostor));
         var alivePlayers = PlayerControl.AllPlayerControls.ToArray().Count(x => !x.HasDied() && !x.Is(Faction.Impostor) && x.Data.Role is not INotThreatable);
-        return aliveImpostors > alivePlayers;
+        return aliveImpostors > alivePlayers && aliveNKs == 0;
     }
 }

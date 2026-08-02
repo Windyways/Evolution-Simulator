@@ -69,11 +69,7 @@ public static class ReviveUtilities
         PlayerControl reviver,
         PlayerControl revived,
         Vector2 position,
-        RoleBehaviour roleWhenAlive,
-        Color flashColor,
-        string? revivedOwnerNotificationText,
-        string? reviverOwnerNotificationText,
-        Sprite? notificationIcon = null)
+        RoleBehaviour roleWhenAlive)
     {
         if (!revived || revived.Data == null)
         {
@@ -84,8 +80,7 @@ public static class ReviveUtilities
 
         // Ensure death state is properly synced before revive to prevent desyncs
         // Wait a small amount to ensure any pending death syncs complete
-        Coroutines.Start(CoEnsureDeathStateSyncedBeforeRevive(revived, inMeetingOrExile, position, roleWhenAlive, flashColor, 
-            revivedOwnerNotificationText, reviverOwnerNotificationText, notificationIcon, reviver));
+        Coroutines.Start(CoEnsureDeathStateSyncedBeforeRevive(revived, inMeetingOrExile, position, roleWhenAlive));
     }
 
     public static void AdjustNotification(this LobbyNotificationMessage notification)
@@ -104,12 +99,7 @@ public static class ReviveUtilities
         PlayerControl revived,
         bool inMeetingOrExile,
         Vector2 position,
-        RoleBehaviour roleWhenAlive,
-        Color flashColor,
-        string? revivedOwnerNotificationText,
-        string? reviverOwnerNotificationText,
-        Sprite? notificationIcon,
-        PlayerControl? reviver)
+        RoleBehaviour roleWhenAlive)
     {
         yield return new WaitForSeconds(0.15f);
 
@@ -184,48 +174,6 @@ public static class ReviveUtilities
         }
 
         revived.RemainingEmergencies = 0;
-        if (reviver != null)
-        {
-            reviver.RemainingEmergencies = 0;
-        }
-
-        if (!inMeetingOrExile && revived.AmOwner && !string.IsNullOrWhiteSpace(revivedOwnerNotificationText))
-        {
-            try
-            {
-                //TouAudio.PlaySound(TouAudio.AltruistReviveSound);
-                Coroutines.Start(MiscUtils.CoFlash(flashColor));
-                var notif = Helpers.CreateAndShowNotification(
-                    $"<b>{flashColor.ToTextColor()}{revivedOwnerNotificationText}</color></b>",
-                    Color.white,
-                    new Vector3(0f, 1f, -20f),
-                    spr: notificationIcon);
-                notif.AdjustNotification();
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        if (!inMeetingOrExile && reviver != null && reviver.AmOwner && reviver != revived && !string.IsNullOrWhiteSpace(reviverOwnerNotificationText))
-        {
-            try
-            {
-                //TouAudio.PlaySound(TouAudio.AltruistReviveSound);
-                Coroutines.Start(MiscUtils.CoFlash(flashColor));
-                var notif = Helpers.CreateAndShowNotification(
-                    $"<b>{flashColor.ToTextColor()}{reviverOwnerNotificationText}</color></b>",
-                    Color.white,
-                    new Vector3(0f, 1f, -20f),
-                    spr: notificationIcon);
-                notif.AdjustNotification();
-            }
-            catch
-            {
-                // ignored
-            }
-        }
 
         try
         {

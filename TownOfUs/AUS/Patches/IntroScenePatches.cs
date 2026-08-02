@@ -30,10 +30,10 @@ public static class IntroScenePatches
             var yourTeam = PlayerControl.AllPlayerControls.ToArray().Where(x => x.Is(Faction.Impostor)).ToList();
             GenerateYourTeam(__instance, yourTeam);
         }
-        else if (PlayerControl.LocalPlayer.Is(Faction.Neutral))
+        else if (PlayerControl.LocalPlayer.Is(Faction.Neutral) && PlayerControl.LocalPlayer.Data.Role is ICustomAURole customRole)
         {
             __instance.TeamTitle.text = "Neutral";
-            __instance.TeamTitle.color = RoleColors.Neutral;
+            __instance.TeamTitle.color = customRole.RoleColor;
 
             var player = __instance.CreatePlayer(0, 1, PlayerControl.LocalPlayer.Data, false);
             __instance.ourCrewmate = player;

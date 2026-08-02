@@ -1,6 +1,4 @@
-﻿using Reactor.Utilities.Extensions;
-
-namespace AmongUsSalem.Patches;
+﻿namespace AmongUsSalem.Patches;
 
 [HarmonyPatch]
 public static class ExileController_BeginForGameplay

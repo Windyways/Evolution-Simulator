@@ -1,5 +1,4 @@
 ﻿using TownOfUs.Modifiers;
-using TownOfUs.Utilities.Appearances;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -8,7 +7,7 @@ namespace AmongUsSalem.Modifiers;
 public sealed class InvisibleStatus : ConcealedModifier, IVisualAppearance
 {
     public override string ModifierName => "Invisible Status";
-    public override float Duration => OptionGroupSingleton<AUSOptions>.Instance.InvisDuration;
+    public override float Duration => 5;
     public override bool HideOnUi => true;
     public override bool AutoStart => true;
     public bool VisualPriority => true;

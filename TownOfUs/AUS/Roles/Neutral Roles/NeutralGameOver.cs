@@ -57,10 +57,8 @@ public sealed class NeutralGameOver : CustomGameOver
 
     public static bool WinConditionMet(RoleBehaviour role)
     {
-        var aliveNK = PlayerControl.AllPlayerControls.ToArray().Count(x => !x.HasDied() && x.IsSameFaction(role.Player));
-        if (aliveNK == 0) return false;
-
-        var result = MiscUtils.GetAlivePlayersToEnd().Count <= aliveNK && MiscUtils.KillersAliveCount == aliveNK;
-        return result;
+        var aliveNK = PlayerControl.AllPlayerControls.ToArray().Count(x => !x.HasDied() && x.Data.Role.NiceName == role.NiceName);
+        var alivePlayers = PlayerControl.AllPlayerControls.ToArray().Count(x => !x.HasDied() && x.Data.Role.NiceName != role.NiceName && x.Data.Role is not INotThreatable);
+        return aliveNK > alivePlayers;
     }
 }

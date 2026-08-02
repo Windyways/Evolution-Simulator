@@ -4,6 +4,7 @@ namespace AUPathfinder
 {
     public class NavMeshLoader
     {
+        public static NavMeshLoader GlobalNavMesh;
         public Dictionary<int, NavNode> Nodes = new();
 
         public void Load()

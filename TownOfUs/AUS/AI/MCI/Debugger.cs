@@ -111,6 +111,7 @@ public class Debugger : MonoBehaviour
         }
     }
 
+    public static int scale = 1;
     public void Update()
     {
         if (AmongUsClient.Instance?.NetworkMode != NetworkModes.LocalGame)
@@ -139,6 +140,14 @@ public class Debugger : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Keypad1))
         {
             Coroutines.Start(PathRecorder.Update());
+        }
+        else if (Input.GetKeyDown(KeyCode.KeypadMinus))
+        {
+            BotNavigator.speed--;
+        }
+        else if (Input.GetKeyDown(KeyCode.KeypadPlus))
+        {
+            BotNavigator.speed++;
         }
     }
 

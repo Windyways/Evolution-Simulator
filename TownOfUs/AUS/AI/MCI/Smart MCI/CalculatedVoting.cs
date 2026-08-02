@@ -41,13 +41,15 @@ public static class CalculatedVoting
         declaredCrewmateTarget = (byte.MinValue, false);
         lastImpostorVoteTarget = (byte.MinValue, false);
 
-        // var alivePlayers = PlayerControl.AllPlayerControls.ToArray().Where(x => !x.HasDied()).ToList();
+        var alivePlayers = PlayerControl.AllPlayerControls.ToArray().Where(x => !x.HasDied()).ToList();
         foreach (PlayerControl player in PlayerControl.AllPlayerControls)
         {
             byte voted = 0;
             if (player.Is(Faction.Impostor)) voted = ImpostorVoting(player, __instance);
             else if (player.Is(Faction.Crewmate)) voted = CrewmateVoting(player, __instance);
-            else if (player.IsRole<Survivor>()) voted = SurvivorVoting(player, __instance);
+            else if (player.IsRole<Concordant>()) voted = SkipVote(player, __instance);
+            else if (player.IsRole<Pharmakos>()) voted = TryCastVote(player, __instance, player.PlayerId);
+            else voted = RandomVote(player, __instance, alivePlayers.Where(x => x != player).ToList(), false);
 
             if (voted == MeetingHud.Instance.SkipVoteButton.TargetPlayerId) AUS_AfterVoteEvent.RoleFunctionOnSkip(player);
             else AUS_AfterVoteEvent.RoleFunctionOnVote(player, MiscUtils.PlayerById(voted));
@@ -65,7 +67,7 @@ public static class CalculatedVoting
     {
         var allPlayers = PlayerControl.AllPlayerControls.ToArray().Where(x => !x.HasDied()).ToList();
         var validPlayers = PlayerControl.AllPlayerControls.ToArray().Where(x =>
-            !x.HasDied() && x != player && !x.HasModifier<TI>() && !x.HasModifier<Confirmed>() && !x.HasModifier<SoftCleared>() && 
+            !x.HasDied() && x != player && !x.HasModifier<TI>() && !x.HasModifier<Confirmed>() && !x.HasModifier<SoftCleared>() && !x.HasModifier<TempCleared>() && 
             !(x.Is(Faction.Crewmate) && x.HasModifier<GlobalReveal>())).ToList();
 
         var seenKill = SeenKill.GetAll();
@@ -125,17 +127,12 @@ public static class CalculatedVoting
             }
         }
 
-        if (lastImpostorVoteTarget.Item2 && ChanceIs(30)) return TryCastVote(player, __instance, lastImpostorVoteTarget.Item1);
+        if (lastImpostorVoteTarget.Item2 && ChanceIs(100)) return TryCastVote(player, __instance, lastImpostorVoteTarget.Item1);
         else if (seenKill != null && !seenKill.killer.Is(Faction.Impostor) && !seenKill.Player.HasDied()) lastImpostorVoteTarget = (TryCastVote(player, __instance, seenKill.killer.PlayerId), true);
         else if (validPlayers.Count > 0) lastImpostorVoteTarget = (RandomVote(player, __instance, validPlayers, allPlayers.Count >= SkipThreshold), true);
         else lastImpostorVoteTarget = (SkipVote(player, __instance), true);
 
         return lastImpostorVoteTarget.Item1;
-    }
-
-    public static byte SurvivorVoting(PlayerControl player, MeetingHud __instance)
-    {
-        return SkipVote(player, __instance);
     }
 
     public static bool ChanceIsNull(int? num)

@@ -152,4 +152,12 @@ public interface ICustomAURole : ICustomRole
     void Role_OnDeath(PlayerControl? player)
     {
     }
+
+    void OnTurnStart()
+    {
+    }
+
+    void OnTurnEnd()
+    {
+    }
 }

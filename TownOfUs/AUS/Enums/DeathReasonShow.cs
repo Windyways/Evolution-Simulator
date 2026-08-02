@@ -7,4 +7,7 @@ public enum DeathReasonShow
     Ejected,
    
     KilledByAnImpostor,
+    KilledByATenebrist,
+    KilledByAPalingenist,
+    KilledByANoctivagant,
 }

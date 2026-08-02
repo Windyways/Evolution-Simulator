@@ -60,10 +60,25 @@ public static class WitnessKill
         }
     }
 
+    public static bool WouldBeWitnessed(PlayerControl killer, PlayerControl target)
+    {
+        foreach (var witness in PlayerControl.AllPlayerControls)
+        {
+            if (witness == killer) continue;
+            if (witness == target) continue;
+            if (witness.HasDied()) continue;
+            if (IgnoreKill(killer, witness)) continue;
+
+            if (BotCanSeeKill(killer, witness, target.GetTruePosition()))
+                return true;
+        }
+
+        return false;
+    }
+
     public static bool IgnoreKill(PlayerControl killer, PlayerControl witness)
     {
-        if (killer.Is(Faction.Impostor) && witness.Is(Faction.Impostor)) return true;
-        return false;
+        return killer.IsAlignedWith(witness);
     }
 
     public static bool BotCanSeeKill(PlayerControl killer, PlayerControl witness, Vector3 killPos)
@@ -139,5 +154,39 @@ public static class WitnessKill
 
         if (player.Is(Faction.Impostor)) return PlayerControl.AllPlayerControls.ToArray().Where(x => !x.HasDied() && !x.Is(Faction.Impostor) && x.GetPlayerRoom() == player.GetPlayerRoom()).ToList();
         return PlayerControl.AllPlayerControls.ToArray().Where(x => !x.HasDied() && x != player && x.GetPlayerRoom() == player.GetPlayerRoom()).ToList();
+    }
+
+    public static List<PlayerControl> PlayersInRoom(this PlayerControl player)
+    {
+        List<PlayerControl> count = new List<PlayerControl>();
+        count.Add(player);
+        foreach (var p in PlayerControl.AllPlayerControls)
+        {
+            if (p != player && !p.HasDied() && player.GetPlayerRoom() == p.GetPlayerRoom())
+            {
+                count.Add(p);
+            }
+        }
+
+        return count;
+    }
+
+    public static bool PlayerIsInRoomAlone(this PlayerControl player) => player.PlayersInRoom().Count == 1;
+
+    public static bool IsIsolated(PlayerControl player)
+    {
+        bool isolated = true;
+        foreach (var t in PlayerControl.AllPlayerControls)
+        {
+            if (t.HasDied() || t == player) continue;
+            if (player.IsAlignedWith(t)) continue;
+
+            if (CanSee(t, player.gameObject))
+            {
+                isolated = false;
+            }
+        }
+
+        return isolated;
     }
 }

@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace AmongUsSalem.Misc;
 
@@ -8,13 +9,23 @@ public static class TextColorizer
     {
         // Crewmate
         { "Crewmate", () => "#b3ffff" },
+        { "Itinerant", () => "#b3ffff" },
+        { "Thanatologist", () => "#b3ffff" },
         
         // Neutral
         { "Neutral", () => "#a9a9a9" },
-        { "Survivor", () => "#dddd00" },
+        { "Concordant", () => "#dddd00" },
+        { "Pharmakos", () => $"#{RoleColors.Pharmakos.ToHtmlStringRGBA()}" },
+        { "Palingenist", () => $"#{RoleColors.Palingenist.ToHtmlStringRGBA()}" },
 
         // Impostor
         { "Impostor", () => "#ff0000" },
+        { "Tenebrist", () => "#ff0000" },
+        { "Noctivagant", () => "#ff0000" },
+
+        // Keywords
+        { "Impostors", () => "#ff0000" },
+        { "Ejected", () => $"#{Color.magenta.ToHtmlStringRGBA()}" },
     };
 
     // Build a single regex that matches any keyword. Longer keys are listed first to prefer them when overlapping.

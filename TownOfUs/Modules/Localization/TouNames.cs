@@ -70,7 +70,7 @@ public enum TouNames
     Phantom,
     Plaguebearer,
     SoulCollector,
-    Survivor,
+    Concordant,
     Vampire,
     Werewolf,
     // Alliance Modifiers

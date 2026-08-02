@@ -13,6 +13,9 @@ namespace AmongUsSalem.Misc
         
         public int Kills { get; set; }
 
+        // Deaths
+        public Dictionary<DeathReasonShow, int> Deaths = new();
+
         public float WinRate
         {
             get
@@ -29,6 +32,8 @@ namespace AmongUsSalem.Misc
             GamesPlayed = 0;
             Kills = 0;
             Color = color;
+
+            Deaths = new Dictionary<DeathReasonShow, int>();
         }
     }
 
@@ -42,17 +47,45 @@ namespace AmongUsSalem.Misc
         {
             // --- CREWMATE ---
             roleStats.Add("Crewmate", new RoleStats("Crewmate", RoleColors.Crewmate));
-
+            roleStats.Add("Itinerant", new RoleStats("Itinerant", RoleColors.Crewmate));
+            roleStats.Add("Thanatologist", new RoleStats("Thanatologist", RoleColors.Crewmate));
+            
             // --- NEUTRAL ---
-            roleStats.Add("Survivor", new RoleStats("Survivor", RoleColors.Survivor));
+            roleStats.Add("Concordant", new RoleStats("Concordant", RoleColors.Concordant));
+            roleStats.Add("Pharmakos", new RoleStats("Pharmakos", RoleColors.Pharmakos));
+            roleStats.Add("Palingenist", new RoleStats("Palingenist", RoleColors.Palingenist));
 
             // --- IMPOSTOR ---
             roleStats.Add("Impostor", new RoleStats("Impostor", RoleColors.Impostor));
+            roleStats.Add("Tenebrist", new RoleStats("Tenebrist", RoleColors.Impostor));
+            roleStats.Add("Noctivagant", new RoleStats("Noctivagant", RoleColors.Impostor));
 
             LoadRoleStats(filePath);
         }
 
         public static List<string> PendingNotifications = new List<string>();
+        public static void UpdateRoleDeaths(RoleBehaviour roleBehaviour, DeathReasonShow death)
+        {
+            string roleName = roleBehaviour.NiceName;
+            if (!CountRoundToLeaderboard)
+            {
+                AUSPlugin.DebugLogMessage("CountRoundToLeaderboard is false or Debugger is inactive, deaths do not count this game.");
+                return;
+            }
+
+            if (roleStats.TryGetValue(roleName, out RoleStats? stats))
+            {
+                if (!stats.Deaths.ContainsKey(death))
+                {
+                    stats.Deaths[death] = 0;
+                }
+
+                stats.Deaths[death]++;
+            }
+
+            SaveRoleStats(filePath);
+        }
+
         public static void UpdateRoleResult(RoleBehaviour roleBehaviour, int kills, bool won)
         {
             string roleName = roleBehaviour.NiceName;
@@ -114,7 +147,7 @@ namespace AmongUsSalem.Misc
                 foreach (var role in roleStats.Values)
                 {
                     //                    TryParse 0    TryParse 1     TryParse 2        TryParse 3 
-                    writer.WriteLine($"{role.RoleName},{role.Wins},{role.GamesPlayed},{role.Kills}");
+                    writer.WriteLine($"{role.RoleName},{role.Wins},{role.GamesPlayed},{role.Kills},{role.Deaths}");
                 }
             }
         }
@@ -131,11 +164,29 @@ namespace AmongUsSalem.Misc
             foreach (var line in File.ReadLines(filePath))
             {
                 var parts = line.Split(',');
-                if (parts.Length != 4) continue; // skip broken lines
+                if (parts.Length != 5) continue; // skip broken lines
                                                  // Add this by 1 for each saved stat i want.
 
                 string roleName = parts[0];
                 Color color = Color.white;
+
+                // Load Deaths
+                var deaths = new Dictionary<DeathReasonShow, int>();
+
+                foreach (var pair in parts[4].Split('|'))
+                {
+                    var values = pair.Split(':');
+
+                    if (values.Length != 2)
+                        continue;
+
+                    if (Enum.TryParse(values[0], out DeathReasonShow reason) &&
+                        int.TryParse(values[1], out int count))
+                    {
+                        deaths[reason] = count;
+                    }
+                }
+
                 if (int.TryParse(parts[1], out int wins) && int.TryParse(parts[2], out int gamesPlayed) && int.TryParse(parts[3], out int kills))
                 {
                     if (roleStats.TryGetValue(roleName, out RoleStats? value))
@@ -143,6 +194,7 @@ namespace AmongUsSalem.Misc
                         value.Wins = wins;
                         value.GamesPlayed = gamesPlayed;
                         value.Kills = kills;
+                        value.Deaths = deaths;
                     }
                     else
                     {
@@ -190,9 +242,51 @@ namespace AmongUsSalem.Misc
             {
                 foreach (var player in PlayerControl.AllPlayerControls)
                 {
-                    if (!string.IsNullOrWhiteSpace(WinRate()) && player == PlayerControl.LocalPlayer)  DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, WinRate());
+                    if (!string.IsNullOrWhiteSpace(WinRate()) && player == PlayerControl.LocalPlayer) DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, WinRate());
                 }
+
+                __instance.freeChatField.Clear();
+                __instance.quickChatMenu.Clear();
+                __instance.quickChatField.Clear();
+                __instance.UpdateChatMode();
                 return true;
+            }
+
+            if (__instance.freeChatField.Text.ToLower(CultureInfo.CurrentCulture).Contains("/print", StringComparison.CurrentCultureIgnoreCase))
+            {
+                LeaderboardPrinter.Print();
+
+                __instance.freeChatField.Clear();
+                __instance.quickChatMenu.Clear();
+                __instance.quickChatField.Clear();
+                __instance.UpdateChatMode();
+                return true;
+            }
+
+            string message = __instance.freeChatField.Text.Trim();
+
+            if (message.StartsWith("/"))
+            {
+                string roleName = message.Substring(1); // removes "/"
+
+                // Case insensitive search
+                var role = RoleReferences.roleStats
+                    .FirstOrDefault(x => x.Key.Equals(roleName, StringComparison.CurrentCultureIgnoreCase));
+
+                if (role.Value != null)
+                {
+                    MiscUtils.AddFakeChat(
+                        PlayerControl.LocalPlayer.CachedPlayerData,
+                        "Stats",
+                        RoleStatsDisplay(role.Value.RoleName)
+                    );
+
+                    __instance.freeChatField.Clear();
+                    __instance.quickChatMenu.Clear();
+                    __instance.quickChatField.Clear();
+                    __instance.UpdateChatMode();
+                    return true;
+                }
             }
 
             if (__instance.freeChatField.Text.ToLower(CultureInfo.CurrentCulture).Contains("/resetlb", StringComparison.CurrentCultureIgnoreCase))
@@ -206,6 +300,11 @@ namespace AmongUsSalem.Misc
                     {
                         DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, playerResults);
                     }
+
+                    __instance.freeChatField.Clear();
+                    __instance.quickChatMenu.Clear();
+                    __instance.quickChatField.Clear();
+                    __instance.UpdateChatMode();
                 }
                 return true;
             }
@@ -215,13 +314,54 @@ namespace AmongUsSalem.Misc
                 if (Debugger.IsDebuggerActive && AUSPlugin.InGame())
                 {
                     MiscUtils.AddFakeChat(PlayerControl.LocalPlayer.CachedPlayerData, "Stats", GetState());
+                    __instance.freeChatField.Clear();
+                    __instance.quickChatMenu.Clear();
+                    __instance.quickChatField.Clear();
+                    __instance.UpdateChatMode();
                 }
                 return true;
             }
             return true;
         }
 
-        public static string WinRate()
+        public static string RoleStatsDisplay(string roleName, bool colors = true)
+        {
+            if (!RoleReferences.roleStats.TryGetValue(roleName, out RoleStats role))
+                return "Role not found.";
+
+            string stats = "";
+
+            string hexColor = ColorUtility.ToHtmlStringRGB(role.Color);
+            string coloredRoleName = $"<b><color=#{hexColor}>{role.RoleName}</color></b>";
+            if (!colors) coloredRoleName = role.RoleName;
+
+            stats += $"--- {coloredRoleName} ---\n\n";
+
+            stats += $"Games Played: {role.GamesPlayed}\n";
+            stats += $"Wins: {role.Wins}\n";
+            stats += $"Losses: {role.GamesPlayed - role.Wins}\n";
+            stats += $"Win Rate: {role.WinRate * 100:F2}%\n";
+            stats += $"Kills: {role.Kills}\n\n";
+
+
+            stats += "--- DEATHS ---\n";
+
+            if (role.Deaths.Count == 0)
+            {
+                stats += "No deaths recorded.\n";
+            }
+            else
+            {
+                foreach (var death in role.Deaths)
+                {
+                    stats += $"{death.Key.ToSpacedString()}: {death.Value}\n";
+                }
+            }
+
+            return "<size=62%>" + stats + "</size>";
+        }
+
+        public static string WinRate(bool colors = true)
         {
             string rates = "";
 
@@ -239,9 +379,14 @@ namespace AmongUsSalem.Misc
 
                 string KillsMSG = "";
                 rates += $"{coloredRoleName} | <b><color=#ff0000>{role.GamesPlayed - role.Wins}</color></b> | <b><color=#00ff00>{role.Wins}</color></b> |{KillsMSG} {role.WinRate * 100:F2}% |\n";
+                if (!colors)
+                {
+                    rates = $"{role.RoleName} | {role.GamesPlayed - role.Wins} | {role.Wins} |{KillsMSG} {role.WinRate * 100:F2}% |\n";
+                }
             }
 
             if (rates == "") rates = "There are no data logged on this slot.";
+            if (!colors) return rates;
             return "<size=62%>" + rates + "</size>";
         }
 

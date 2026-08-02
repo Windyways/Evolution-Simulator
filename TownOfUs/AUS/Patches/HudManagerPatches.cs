@@ -316,13 +316,7 @@ public static class HudManagerPatches
                         else
                         {
                             var deathReason = $"<size=50%>({deathMod.DeathColor.ToTextColor()}{deathMod.CauseOfDeath.ToSpacedString()}</color>)</size>\n";
-
-                            var secondDeathReason = "";
-                            if (deathMod.SecondaryCauseOfDeath != DeathReasonShow.Alive) secondDeathReason = $"<size=40%>({deathMod.SecondaryDeathColor.ToTextColor()}{deathMod.SecondaryCauseOfDeath.ToSpacedString()}</color>)</size>\n";
-
-                            var thirdDeathReason = "";
-                            if (deathMod.ThirdCauseOfDeath != DeathReasonShow.Alive) thirdDeathReason = $"<size=30%>({deathMod.ThirdDeathColor.ToTextColor()}{deathMod.ThirdCauseOfDeath.ToSpacedString()}</color>)</size>\n";
-                            roleName = $"{deathReason}{secondDeathReason}{thirdDeathReason}{roleName}";
+                            roleName = $"{deathReason}{roleName}";
                         }
                     }
                 }

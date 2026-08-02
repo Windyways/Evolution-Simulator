@@ -11,13 +11,13 @@ public class Bot(IntPtr ptr) : MonoBehaviour(ptr)
     public PlayerControl target;
     public BotNavigator nav;
 
+    public bool UsedAbility;
     public bool isMoving;
     public bool endTurn;
     public int nodes;
     public bool isTurn;
     public SystemTypes startingRoom;
     public PlayerTask targetTask;
-
     public ActionType2 currentAction;
     private void Start()
     {
@@ -29,7 +29,7 @@ public class Bot(IntPtr ptr) : MonoBehaviour(ptr)
         if (isTurn)
         {
             var currentRoom = player.GetPlayerRoom();
-            if (currentRoom != startingRoom && currentRoom != SystemTypes.Hallway)
+            if (currentRoom != startingRoom && currentRoom != SystemTypes.Hallway && !player.IsRole<Itinerant>())
             {
                 startingRoom = currentRoom;
                 AUSPlugin.DebugLogMessage($"{player.Data.PlayerName} is stopping in {currentRoom}");
@@ -45,35 +45,50 @@ public class Bot(IntPtr ptr) : MonoBehaviour(ptr)
         startingRoom = player.GetPlayerRoom();
         isTurn = true;
         endTurn = false;
+        UsedAbility = false;
+
+        if (player.Data.Role is ICustomAURole customRole) customRole.OnTurnStart();
+
         Move();
     }
 
-    public void Move()
+    private bool TaskMove()
     {
-        AUSPlugin.DebugLogMessage($"{player.Data.PlayerName} is in {startingRoom}");
-
-        if (player.Is(Faction.Crewmate))
+        if (player.CanCompleteTasks())
         {
-            if (nodes == 1 && targetTask != null)
-            {
-                HudManager.Instance.ShowTaskComplete();
-                player.RpcCompleteTask(targetTask.Id);
-                targetTask = null;
-            }
-
             var tasks = player.myTasks.ToArray().Where(x => x.TryCast<NormalPlayerTask>() != null && !x.IsComplete).ToList();
             if (tasks.Count > 0)
             {
-                tasks.Shuffle();
-                var randomTask = tasks[0];
+                var randomTask = tasks.OrderBy(x => Vector2.Distance(x.transform.position, player.GetTruePosition())).FirstOrDefault();
                 if (targetTask == null) targetTask = randomTask;
 
                 var pos = targetTask.FindConsoles().ToArray().Random().transform.position;
                 nav.MoveTo(pos, ActionType2.Move);
-                return;
+                return true;
             }
         }
 
+        return false;
+    }
+
+    private bool PriorityMove()
+    {
+        if (player.Data.Role is Noctivagant noctivagant && noctivagant.IsolatedPlayer != null)
+        {
+            nav.MoveTo(noctivagant.IsolatedPlayer.transform.position, ActionType2.Move);
+            return true;
+        }
+        if (player.Data.Role is Thanatologist thanatologist && thanatologist.TargetPlayer != null)
+        {
+            nav.MoveTo(thanatologist.TargetPlayer.transform.position, ActionType2.Move);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool AdjacentRoomMove()
+    {
         if (AdjacentRooms.TryGetValue(startingRoom, out var value))
         {
             var possibleRooms = new List<SystemTypes>(value);
@@ -83,16 +98,72 @@ public class Bot(IntPtr ptr) : MonoBehaviour(ptr)
             if (RoomLocations.TryGetValue((roomTarget, CheckMap.MapSelected), out var pos))
             {
                 nav.MoveTo(pos, ActionType2.Move);
+                return true;
             }
         }
-        else // Invalid room!
+
+        return false;
+    }
+
+    private bool RandomRoomMove()
+    {
+        var roomTarget = CustomExtentions.AvailableRooms.Random();
+        if (RoomLocations.TryGetValue((roomTarget, CheckMap.MapSelected), out var pos))
         {
-            var roomTarget = CustomExtentions.AvailableRooms.Random();
-            if (RoomLocations.TryGetValue((roomTarget, CheckMap.MapSelected), out var pos))
+            nav.MoveTo(pos, ActionType2.Move);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void Move()
+    {
+        AUSPlugin.DebugLogMessage($"{player.Data.PlayerName} is in {startingRoom}");
+        if (player.HasDied() && !player.Is(Faction.Crewmate) && player.GetTasksLeft() == 0)
+        {
+            EndTurn();
+            return;
+        }
+
+        if (TaskMove())
+            return;
+
+        if (PriorityMove())
+            return;
+
+        if (AdjacentRoomMove())
+            return;
+
+        RandomRoomMove();
+    }
+
+    private bool TryKill(bool killAny = false)
+    {
+        var players = PlayerControl.AllPlayerControls.ToArray().ToList();
+        players.Shuffle();
+        foreach (var t in players)
+        {
+            if (t.HasDied() || t == player) continue;
+            if (player.Is(Faction.Impostor) && t.Is(Faction.Impostor)) continue;
+            if (!WitnessKill.CanSee(player, t.gameObject)) continue;
+
+            if (!WitnessKill.WouldBeWitnessed(player, t) || killAny)
             {
-                nav.MoveTo(pos, ActionType2.Move);
+                if (player.HasModifier<InvisibleStatus>() && player.IsRole<Tenebrist>() && t.PlayersInRoom().Count(x => x != player) > 3)
+                    return false;
+
+                AUSPlugin.DebugLogMessage("Attempting Ability!");
+
+                target = t;
+                nav.MoveTo(target.GetTruePosition(), ActionType2.Ability);
+
+                UsedAbility = true;
+                return true;
             }
         }
+
+        return false;
     }
 
     public bool Actions()
@@ -100,28 +171,21 @@ public class Bot(IntPtr ptr) : MonoBehaviour(ptr)
         if (player.HasDied()) return false;
 
         // Role Functions
-        if (currentAction != ActionType2.Ability)
+        if (currentAction != ActionType2.Ability && !UsedAbility)
         {
-            if (player.Data.Role is Impostor)
+            if (player.Data.Role is Tenebrist tenebrist)
             {
-                var isolated = WitnessKill.IsolatedPlayers(player);
-                if (isolated.Count == 1)
-                {
-                    var p = isolated.Random();
-
-                    AUSPlugin.DebugLogMessage("Attempting Ability!");
-
-                    target = p;
-                    nav.MoveTo(target.GetTruePosition(), ActionType2.Ability);
-
-                    return true;
-                }
+                if (WitnessKill.IsIsolated(player) && !player.HasModifier<InvisibleStatus>()) tenebrist.DoVisit(player, 2, false, false);
+                return TryKill(player.HasModifier<InvisibleStatus>());
             }
-
+            else if (player.IsStandardKiller())
+            {
+                return TryKill();
+            }
         }
 
         // Report
-        if (!player.Is(Faction.Impostor) && currentAction != ActionType2.Report)
+        if (!player.IsStandardKiller() && currentAction != ActionType2.Report)
         {
             var deadBodies = UnityEngine.Object.FindObjectsOfType<DeadBody>().ToList();
             foreach (var db in deadBodies)
@@ -131,8 +195,6 @@ public class Bot(IntPtr ptr) : MonoBehaviour(ptr)
                 {
                     AUSPlugin.DebugLogMessage("Attempting Report!");
                     player.CmdReportDeadBody(t.Data);
-                    //target = t;
-                    //nav.MoveTo(db.transform.position, ActionType2.Report);
                     return true;
                 }
             }
@@ -143,47 +205,41 @@ public class Bot(IntPtr ptr) : MonoBehaviour(ptr)
 
     public void PerformAction(bool roleAction)
     {
+        bool killed = false;
         if (roleAction && !player.HasDied())
         {
-            if (player.Data.Role is Impostor impostor)
+            if (player.Data.Role is ICustomAURole customRole)
             {
-                impostor.DoVisit(target, 1, true, true);
-                target = null;
+                if (player.Data.Role is Impostor or Tenebrist or Palingenist or Noctivagant)
+                {
+                    killed = true;
+                    customRole.DoVisit(target, 1, true, true);
+                    target = null;
+                }
             }
         }
-        /*else if (!player.HasDied())
-        {
-            if (player.Data.Role is Impostor)
-            {
-                var players = PlayerControl.AllPlayerControls.ToArray().Where(x => x.GetPlayerRoom() == player.GetPlayerRoom() && !x.HasDied()).ToList();
-                foreach (var p in players)
-                {
-                    var pInVision = PlayerControl.AllPlayerControls.ToArray().Count(
-                        x => x != p && !x.HasDied() && !x.Is(Faction.Impostor) && WitnessKill.BotCanSeeKill(player, x, p.GetTruePosition()));
-                    if (pInVision == 0 && !p.Is(Faction.Impostor))
-                    {
-                        target = p;
-                        nav.MoveTo(target.GetTruePosition(), ActionType2.Ability);
-                        return;
-                    }
-                }
 
-                // --- Fallback if the top code doesnt work. ---
-                if (players.Count(x => !x.Is(Faction.Impostor)) == 1)
-                {
-                    AUSPlugin.DebugLogMessage("Attempting standard kill logic.");
-                    target = players.FirstOrDefault(x => !x.Is(Faction.Impostor));
-                    nav.MoveTo(target.GetTruePosition(), ActionType2.Ability);
-                    return;
-                }
-            }
-        }*/
-
-        EndTurn();
+        EndTurn(killed);
     }
 
-    public void EndTurn()
+    public void EndTurn(bool killed = false)
     {
+        if (nodes == 1 && targetTask != null)
+        {
+            HudManager.Instance.ShowTaskComplete();
+            player.RpcCompleteTask(targetTask.Id);
+            targetTask = null;
+        }
+
+        /*if (player.Data.Role is Palingenist palingenist && !palingenist.UsedSecondMove)
+        {
+            palingenist.UsedSecondMove = true;
+            Move();
+            return;
+        }*/
+
+        if (player.Data.Role is ICustomAURole customRole) customRole.OnTurnEnd();
+
         endTurn = true;
         isTurn = false;
         currentAction = ActionType2.None;

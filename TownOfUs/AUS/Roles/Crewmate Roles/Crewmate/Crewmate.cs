@@ -29,7 +29,7 @@ public sealed class Crewmate(IntPtr cppPtr) : CrewmateRole(cppPtr), ICustomAURol
     public string GetAdvancedDescription()
     {
         return
-            $"Standard vanilla crewmate." +
+            $"I can complete tasks." +
             MiscUtils.AppendOptionsText(GetType());
     }
 }

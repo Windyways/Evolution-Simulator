@@ -14,9 +14,9 @@ namespace AUPathfinder
 
         void Start()
         {
-            loader = new NavMeshLoader();
-            loader.Load();
-            loader.ConnectNearbyNodes(1.25f);
+            loader = NavMeshLoader.GlobalNavMesh;// new NavMeshLoader();
+           // loader.Load();
+            //loader.ConnectNearbyNodes(1.25f);
         }
 
         public void MoveTo(Vector2 target, ActionType2 type)
@@ -128,13 +128,12 @@ namespace AUPathfinder
             //if (type == ActionType2.Report) player.CmdReportDeadBody(bot.target.Data);
         }
 
+        public static float speed = 7;
         public IEnumerator MoveSmoothly(Vector2 target)
         {
             Vector2 start = player.transform.position;
 
             float distance = Vector2.Distance(start, target);
-
-            float speed = 7f; // Adjust this
 
             float duration = distance / speed;
 

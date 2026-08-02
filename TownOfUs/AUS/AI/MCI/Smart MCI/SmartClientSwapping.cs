@@ -1,3 +1,4 @@
+using AUPathfinder;
 using System.Collections;
 using UnityEngine;
 
@@ -13,6 +14,14 @@ public static class SmartClientSwapping
         {
             if (@event.TriggeredByIntro)
             {
+                if (NavMeshLoader.GlobalNavMesh == null)
+                {
+                    var loader = new NavMeshLoader();
+                    loader.Load();
+                    loader.ConnectNearbyNodes(1.25f);
+                    NavMeshLoader.GlobalNavMesh = loader;
+                }
+
                 Bot.Bots.Clear();
                 foreach (var player in PlayerControl.AllPlayerControls) Bot.Create(player);
             }
@@ -29,6 +38,12 @@ public static class SmartClientSwapping
     {
         if (Debugger.windywaysMode)
         {
+            foreach (var bot in Bot.Bots)
+            {
+                bot.isTurn = false;
+            }
+
+            GiveGroupClears();
             Coroutines.Start(DelayVote());
         }
     }
@@ -46,5 +61,31 @@ public static class SmartClientSwapping
 
         yield return new WaitForSeconds(2f);
         MeetingHud.Instance.RpcClose();
+    }
+
+    // Clear Method
+    public static void GiveGroupClears()
+    {
+        foreach (var tc in ModifierUtils.GetActiveModifiers<TempCleared>().ToArray())
+        {
+            tc.Player.RemoveModifier(tc);
+        }
+
+        foreach (var player in PlayerControl.AllPlayerControls)
+        {
+            if (!player.Is(Faction.Impostor) && !player.HasDied())
+            {
+                foreach (var p in PlayerControl.AllPlayerControls)
+                {
+                    if (!p.HasDied() && player != p && !p.HasModifier<InvisibleStatus>())
+                    {
+                        if (WitnessKill.CanSee(player, p.gameObject))
+                        {
+                            p.AddModifier<TempCleared>();
+                        }
+                    }
+                }
+            }
+        }
     }
 }
